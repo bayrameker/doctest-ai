@@ -1,0 +1,490 @@
+{% extends 'layout.html' %}
+
+{% block title %}İşleme Durumu - api Test Scenario Creator{% endblock %}
+
+{% block styles %}
+<style>
+    .progress-card {
+        transition: all 0.3s ease-in-out;
+        max-width: 800px;
+        margin: 2rem auto;
+        border-radius: 1rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+    }
+
+    .progress-header {
+        background-color: var(--bs-primary);
+        color: white;
+        padding: 1.5rem;
+        border-top-left-radius: 0.5rem;
+        border-top-right-radius: 0.5rem;
+    }
+
+    .progress-content {
+        padding: 2rem;
+    }
+
+    .progress-bar {
+        height: 20px;
+        border-radius: 10px;
+    }
+
+    .progress-info {
+        margin-top: 1.5rem;
+    }
+
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.5;
+        }
+
+        100% {
+            opacity: 1;
+        }
+    }
+
+    .status-badge {
+        font-size: 14px;
+        border-radius: 50px;
+        padding: 0.5rem 1rem;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        display: inline-block;
+    }
+
+    .status-starting {
+        background-color: var(--bs-warning-bg-subtle);
+        color: var(--bs-warning);
+    }
+
+    .status-processing {
+        background-color: var(--bs-info-bg-subtle);
+        color: var(--bs-info);
+    }
+
+    .status-completed {
+        background-color: var(--bs-success-bg-subtle);
+        color: var(--bs-success);
+    }
+
+    .status-error {
+        background-color: var(--bs-danger-bg-subtle);
+        color: var(--bs-danger);
+    }
+
+    .status-unknown {
+        background-color: var(--bs-secondary-bg-subtle);
+        color: var(--bs-secondary);
+    }
+
+    .model-info {
+        margin-top: 1rem;
+        padding: 1rem 0;
+        border-top: 1px solid var(--bs-border-color);
+    }
+
+    .loading-animation {
+        width: 100px;
+        height: 100px;
+        margin: 2rem auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .spinner {
+        border: 5px solid rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        border-top: 5px solid var(--bs-primary);
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="text-center mb-4">Test Senaryosu Oluşturma İşlemi</h1>
+
+    <div class="progress-card">
+        <div class="progress-header">
+            <h3 class="m-0">İşleme Durumu</h3>
+        </div>
+
+        <div class="progress-content">
+            <div class="status-badge status-{{ status }}">
+                {% if status == 'starting' %}
+                Başlatılıyor
+                {% elif status == 'processing' %}
+                İşleme Devam Ediyor
+                {% elif status == 'completed' %}
+                Tamamlandı
+                {% elif status == 'error' %}
+                Hata
+                {% else %}
+                Bilinmiyor
+                {% endif %}
+            </div>
+
+            <div class="progress my-3">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                    style="width: {{ progress }}%;" aria-valuenow="{{ progress }}" aria-valuemin="0"
+                    aria-valuemax="100">{{ progress }}%</div>
+            </div>
+
+            <div class="progress-info">
+                <h5 class="pulse">{{ message }}</h5>
+
+                {% if status != 'completed' %}
+                <div class="loading-animation">
+                    <div class="spinner"></div>
+                </div>
+                {% endif %}
+
+                <div class="model-info mt-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>AI Modeli:</strong> {{ ai_model }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Dosya Adı:</strong> {{ filename }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manuel yönlendirme seçeneği - ilerleme takılı kalırsa kullanılabilir -->
+                <div id="manualRedirectPanel" style="display:none;" class="alert alert-warning mt-4">
+                    <h5><i class="fas fa-exclamation-triangle me-2"></i> İşlem takılı kalmış gibi görünüyor</h5>
+                    <p>İşlem arka planda tamamlanmış olabilir ancak ilerlemesi güncellenmemiş olabilir. Loglar
+                        incelendiğinde, işlem başarıyla tamamlandığı halde ilerlemesi %10'da takılı kalabiliyor.
+                        Sonuçlar sayfasına yönlendirilmeyi deneyebilirsiniz.</p>
+                    <div class="mt-2 mb-2">
+                        <strong>Durum Bilgisi:</strong>
+                        <div class="badge rounded-pill text-bg-primary mb-3">İş Kimliği: {{ job_id }}</div>
+                        <div class="badge rounded-pill text-bg-secondary">İlerleme: <span id="stuckProgress">{{ progress
+                                }}</span>%</div>
+                    </div>
+                    <div class="mt-3">
+                        <button id="checkLatestResultsBtn" class="btn btn-primary">
+                            <i class="fas fa-list-alt me-2"></i> En Son Sonuçları Göster
+                        </button>
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary ms-2">
+                            <i class="fas fa-home me-2"></i> Ana Sayfaya Dön
+                        </a>
+                        <button id="forceRefreshBtn" class="btn btn-outline-info ms-2">
+                            <i class="fas fa-sync-alt me-2"></i> Yeniden Dene
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {% if status == 'error' %}
+            <div class="alert alert-danger mt-4">
+                <h5>İşleme sırasında bir hata oluştu:</h5>
+                <p>{{ message }}</p>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-danger mt-3">Ana Sayfaya Dön</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Maksimum yeniden deneme sayısı
+    const MAX_RETRIES = 10;
+    let retryCount = 0;
+    let intervalId = null;
+
+    // İşlem durumunu güncelleyen fonksiyon
+    function updateJobStatus() {
+        console.log("Checking job status for: {{ job_id }}");
+
+        // Sayfa başlığını güncelle (böylece sayfa yüklenmesi sorununu anlayabiliriz)
+        document.title = "Kontrol ediliyor: " + new Date().toLocaleTimeString();
+
+        fetch('/api/job_status/{{ job_id }}')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Received status data:", JSON.stringify(data));
+                // Sayfa başlığını güncelle
+                document.title = `Status: ${data.status} - Progress: ${data.progress}%`;
+                // Yeniden deneme sayacını sıfırla, başarılı yanıt aldık
+                retryCount = 0;
+
+                // Durum bilgisini güncelle
+                const statusBadge = document.querySelector('.status-badge');
+                statusBadge.className = 'status-badge';
+                statusBadge.classList.add('status-' + data.status);
+
+                if (data.status === 'starting') {
+                    statusBadge.textContent = 'Başlatılıyor';
+                } else if (data.status === 'processing') {
+                    statusBadge.textContent = 'İşleme Devam Ediyor';
+                } else if (data.status === 'completed') {
+                    statusBadge.textContent = 'Tamamlandı';
+                } else if (data.status === 'error') {
+                    statusBadge.textContent = 'Hata';
+                } else {
+                    statusBadge.textContent = 'Bilinmiyor';
+                }
+
+                // İlerleme çubuğunu güncelle
+                const progressBar = document.querySelector('.progress-bar');
+                const progress = data.progress || 0;
+                progressBar.style.width = progress + '%';
+                progressBar.setAttribute('aria-valuenow', progress);
+                progressBar.textContent = progress + '%';
+
+                // Mesajı güncelle
+                const messageElement = document.querySelector('.progress-info h5');
+                messageElement.textContent = data.message || 'İşlem devam ediyor...';
+
+                // Yükleme animasyonunu güncelle
+                const loadingAnimation = document.querySelector('.loading-animation');
+                if (data.status === 'completed') {
+                    if (loadingAnimation) {
+                        loadingAnimation.style.display = 'none';
+                    }
+                } else {
+                    if (loadingAnimation) {
+                        loadingAnimation.style.display = 'flex';
+                    }
+                }
+
+                // Hata durumunu göster
+                const errorAlert = document.querySelector('.alert-danger');
+                if (data.status === 'error') {
+                    if (!errorAlert) {
+                        const progressContent = document.querySelector('.progress-content');
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'alert alert-danger mt-4';
+                        errorDiv.innerHTML = `
+                            <h5>İşleme sırasında bir hata oluştu:</h5>
+                            <p>${data.message}</p>
+                            <a href="/" class="btn btn-outline-danger mt-3">Ana Sayfaya Dön</a>
+                        `;
+                        progressContent.appendChild(errorDiv);
+                    }
+                }
+
+                // İşlem tamamlandıysa sonuçlar sayfasına yönlendir
+                if (data.status === 'completed') {
+                    if (data.redirect_url) {
+                        console.log("Job completed, redirecting to:", data.redirect_url);
+
+                        // Yeni bir bilgilendirme mesajı ekle
+                        const progressContent = document.querySelector('.progress-content');
+                        const successDiv = document.createElement('div');
+                        successDiv.className = 'alert alert-success mt-4';
+                        successDiv.innerHTML = `
+                            <h5>İşlem Başarıyla Tamamlandı!</h5>
+                            <p>Test senaryoları başarıyla oluşturuldu. Sonuçlar sayfasına yönlendiriliyorsunuz...</p>
+                            <div class="text-center">
+                                <div class="spinner-border text-success" role="status">
+                                    <span class="visually-hidden">Yükleniyor...</span>
+                                </div>
+                            </div>
+                        `;
+                        progressContent.appendChild(successDiv);
+
+                        // Interval'i temizle
+                        if (intervalId) {
+                            clearInterval(intervalId);
+                            intervalId = null;
+                        }
+
+                        // Debug log
+                        console.log("Debug info:", data.debug_info);
+
+                        // Sayfayı 2 saniye sonra yeniden yükle
+                        setTimeout(() => {
+                            console.log("Redirecting to: " + data.redirect_url);
+                            // URL'in / ile başlayıp başlamadığını kontrol et
+                            if (data.redirect_url && !data.redirect_url.startsWith('/')) {
+                                data.redirect_url = '/' + data.redirect_url;
+                            }
+                            window.location.href = data.redirect_url;
+                        }, 2000); // 2 saniye bekleyip yönlendir
+                    } else {
+                        console.warn("Job completed but no redirect URL provided");
+                        // Fallback - sonuçlar sayfasına yönlendir
+                        const progressContent = document.querySelector('.progress-content');
+                        const successDiv = document.createElement('div');
+                        successDiv.className = 'alert alert-success mt-4';
+                        successDiv.innerHTML = `
+                            <h5>İşlem Başarıyla Tamamlandı!</h5>
+                            <p>Test senaryoları başarıyla oluşturuldu ancak otomatik yönlendirme yapılamadı.</p>
+                            <button onclick="window.location.href='/results'" class="btn btn-primary">
+                                Sonuçları Görüntüle
+                            </button>
+                        `;
+                        progressContent.appendChild(successDiv);
+
+                        // Manuel yönlendirme panelini göster
+                        const manualRedirectPanel = document.getElementById('manualRedirectPanel');
+                        if (manualRedirectPanel) {
+                            manualRedirectPanel.style.display = 'block';
+                        }
+                    }
+                    return; // Daha fazla işlem yapma
+                }
+
+                // İşlem hata verirse interval'i temizle
+                if (data.status === 'error') {
+                    if (intervalId) {
+                        clearInterval(intervalId);
+                        intervalId = null;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching job status:', error);
+                retryCount++;
+
+                // Maksimum yeniden deneme sayısını aştıysa ve hala interval aktifse
+                if (retryCount > MAX_RETRIES && intervalId) {
+                    clearInterval(intervalId);
+                    intervalId = null;
+
+                    // Hata mesajı göster
+                    const progressContent = document.querySelector('.progress-content');
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'alert alert-danger mt-4';
+                    errorDiv.innerHTML = `
+                        <h5>Bağlantı hatası oluştu:</h5>
+                        <p>Sunucu ile iletişim kurulurken bir sorun oluştu. Lütfen sayfayı yenileyin veya daha sonra tekrar deneyin.</p>
+                        <a href="/" class="btn btn-outline-danger mt-3">Ana Sayfaya Dön</a>
+                    `;
+                    progressContent.appendChild(errorDiv);
+                }
+            });
+    }
+
+    // İlerleme sayfasının takılı kalıp kalmadığını kontrol et
+    let progressStuckTimer = null;
+    let lastProgressValue = 0;
+    let stuckCount = 0;
+
+    function checkProgressStuck(currentProgress) {
+        // İlerleme değeri değişmediyse sayacı artır
+        if (currentProgress === lastProgressValue && currentProgress > 0 && currentProgress < 100) {
+            stuckCount++;
+            console.log(`Progress appears stuck at ${currentProgress}%. Stuck count: ${stuckCount}`);
+
+            // 10 saniye (5 kontrol x 2 saniye) boyunca takılı kaldıysa
+            if (stuckCount >= 5) {
+                // Manuel yönlendirme panelini göster
+                const manualRedirectPanel = document.getElementById('manualRedirectPanel');
+                if (manualRedirectPanel && manualRedirectPanel.style.display === 'none') {
+                    console.log("Showing manual redirect panel due to stuck progress");
+                    manualRedirectPanel.style.display = 'block';
+                }
+            }
+        } else {
+            // İlerleme değeri değiştiyse sayacı sıfırla
+            stuckCount = 0;
+        }
+
+        // Son ilerleme değerini güncelle
+        lastProgressValue = currentProgress;
+    }
+
+    // Event listener'ları oluştur
+    document.addEventListener('DOMContentLoaded', function () {
+        // En son sonuçları kontrol et butonu
+        const checkLatestResultsBtn = document.getElementById('checkLatestResultsBtn');
+        if (checkLatestResultsBtn) {
+            checkLatestResultsBtn.addEventListener('click', function () {
+                window.location.href = '/results';
+            });
+        }
+
+        // Yeniden dene butonu
+        const forceRefreshBtn = document.getElementById('forceRefreshBtn');
+        if (forceRefreshBtn) {
+            forceRefreshBtn.addEventListener('click', function () {
+                // Takılı kalmış ilerlemeyi güncelleyen değişkeni sıfırla
+                stuckCount = 0;
+
+                // İlerleme değerini güncelle
+                const stuckProgressElement = document.getElementById('stuckProgress');
+                if (stuckProgressElement) {
+                    const progressBar = document.querySelector('.progress-bar');
+                    if (progressBar) {
+                        const progress = progressBar.getAttribute('aria-valuenow');
+                        stuckProgressElement.textContent = progress;
+                    }
+                }
+
+                // API'yi zorla çağır
+                updateJobStatus();
+
+                // Butona tıklandığını göster
+                forceRefreshBtn.innerHTML = '<i class="fas fa-sync-alt fa-spin me-2"></i> Kontrol Ediliyor...';
+                setTimeout(() => {
+                    forceRefreshBtn.innerHTML = '<i class="fas fa-sync-alt me-2"></i> Yeniden Dene';
+                }, 3000);
+            });
+        }
+    });
+
+    // Sayfa yüklendiğinde işlem durumunu kontrol etmeye başla
+    document.addEventListener('DOMContentLoaded', function () {
+        // İlk kontrolü hemen yap
+        updateJobStatus();
+
+        // Sonra her 2 saniyede bir kontrol et
+        intervalId = setInterval(updateJobStatus, 2000);
+
+        // İlerleme kontrolünü başlat
+        progressStuckTimer = setInterval(function () {
+            const progressBar = document.querySelector('.progress-bar');
+            if (progressBar) {
+                const currentProgress = parseInt(progressBar.getAttribute('aria-valuenow') || '0');
+                checkProgressStuck(currentProgress);
+            }
+        }, 2000);
+
+        // Sayfa kapatıldığında interval'i temizle
+        window.addEventListener('beforeunload', function () {
+            if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+            }
+
+            if (progressStuckTimer) {
+                clearInterval(progressStuckTimer);
+                progressStuckTimer = null;
+            }
+        });
+    });
+</script>
+{% endblock %}

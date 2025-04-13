@@ -1,0 +1,270 @@
+/* ================================
+   ANIMATIONS
+   ================================ */
+
+/* Fade in up animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fadeInUp {
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+/* Pulse animation for feature icons and cards */
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+
+    50% {
+        transform: scale(1.05);
+        opacity: 0.3;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+}
+
+/* Shimmer animation for header gold strips */
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.fadeIn {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+/* Slide in animation */
+@keyframes slideIn {
+    from {
+        transform: translateX(-30px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.slideIn {
+    animation: slideIn 0.5s ease forwards;
+}
+
+/* Glow effect */
+@keyframes glow {
+    0% {
+        box-shadow: 0 0 5px rgba(242, 183, 5, 0.1);
+    }
+
+    50% {
+        box-shadow: 0 0 20px rgba(242, 183, 5, 0.4);
+    }
+
+    100% {
+        box-shadow: 0 0 5px rgba(242, 183, 5, 0.1);
+    }
+}
+
+.glow {
+    animation: glow 2s infinite;
+}
+
+/* Float effect for cards */
+@keyframes float {
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
+}
+
+.float {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Rotate effect for icons */
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.rotate {
+    animation: rotate 15s linear infinite;
+}
+
+/* Spinner animation for loading states */
+@keyframes spinner {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner {
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: var(--api-gold);
+    animation: spinner 0.8s linear infinite;
+}
+
+/* AI Suggestion popup styles */
+.ai-suggestion-popup {
+    position: absolute;
+    z-index: 1050;
+    background-color: #1e1e1e;
+    border: 1px solid #3e3e3e;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    padding: 16px;
+    width: 320px;
+    display: none;
+    animation: fadeInUp 0.3s ease;
+}
+
+.ai-suggestion-popup .suggestion-content {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    color: #f8f9fa;
+}
+
+.ai-suggestion-popup .suggestion-content i {
+    color: var(--api-accent);
+    margin-top: 2px;
+    margin-right: 10px;
+}
+
+.ai-suggestion-popup .suggestion-text {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.ai-suggestion-popup .suggestion-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.ai-suggestion-popup .btn-primary {
+    background-color: var(--api-secondary);
+    border-color: var(--api-secondary);
+}
+
+.ai-suggestion-popup .btn-primary:hover {
+    background-color: var(--api-accent);
+    border-color: var(--api-accent);
+}
+
+/* Progress Animation */
+@keyframes progressFill {
+    0% {
+        width: 0%;
+    }
+
+    100% {
+        width: 100%;
+    }
+}
+
+/* Code editor enhancements */
+[contenteditable=true]:focus {
+    outline: 2px solid var(--api-secondary);
+    outline-offset: 2px;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(18, 110, 130, 0.3);
+    transition: outline-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.code-container {
+    position: relative;
+}
+
+.code-actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.code-container:hover .code-actions {
+    opacity: 1;
+}
+
+.code-action-btn {
+    background-color: rgba(30, 30, 30, 0.85);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.code-action-btn:hover {
+    background-color: var(--api-secondary);
+    transform: scale(1.05);
+}
+
+/* Toast fade animations */
+@keyframes fadeOutDown {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}

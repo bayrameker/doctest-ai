@@ -1,0 +1,270 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="settings-page">
+    <h1 class="mb-4"><i class="fas fa-cog me-2"></i>Sistem Ayarları</h1>
+
+    <div class="row">
+        <!-- API Settings -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-key me-2"></i>API Ayarları</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('update_api_settings') }}" method="post">
+                        <div class="mb-3">
+                            <label for="openai_api_key" class="form-label">OpenAI API Anahtarı</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="openai_api_key" name="openai_api_key"
+                                    placeholder="OpenAI API anahtarınız" value="{{ openai_key_preview }}">
+                                <button class="btn btn-outline-secondary toggle-password" type="button">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">Görüntü analizi için OpenAI Vision API kullanılır</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="azure_api_key" class="form-label">Azure OpenAI API Anahtarı</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="azure_api_key" name="azure_api_key"
+                                    placeholder="Azure OpenAI API anahtarınız" value="{{ azure_key_preview }}">
+                                <button class="btn btn-outline-secondary toggle-password" type="button">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="azure_endpoint" class="form-label">Azure Endpoint</label>
+                            <input type="text" class="form-control" id="azure_endpoint" name="azure_endpoint"
+                                placeholder="https://your-resource.openai.azure.com/" value="{{ azure_endpoint }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="azure_region" class="form-label">Azure Region</label>
+                            <input type="text" class="form-control" id="azure_region" name="azure_region"
+                                value="{{ azure_region }}">
+                            <small class="text-muted">Örnek: eastus, westeurope</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>API Anahtarlarını Kaydet
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Settings -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-robot me-2"></i>Model Ayarları</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('update_model_settings') }}" method="post">
+                        <div class="mb-3">
+                            <label for="default_service" class="form-label">Varsayılan AI Servisi</label>
+                            <select class="form-select" id="default_service" name="default_service">
+                                <option value="azure_openai">Azure OpenAI</option>
+                                <option value="openai">OpenAI</option>
+                                <option value="ollama">Ollama (Yerel)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="default_model" class="form-label">Varsayılan Model</label>
+                            <select class="form-select" id="default_model" name="default_model">
+                                <option value="gpt-4o">GPT-4o (OpenAI)</option>
+                                <option value="gpt-4-turbo">GPT-4 Turbo (OpenAI)</option>
+                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo (OpenAI)</option>
+                                <option value="api-url">api-url (Azure)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="max_tokens" class="form-label">Maksimum Token (Çıktı)</label>
+                            <input type="number" class="form-control" id="max_tokens" name="max_tokens" value="4000">
+                            <small class="text-muted">Daha yüksek değerler daha uzun yanıtlar üretir</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="temperature" class="form-label">Sıcaklık: <span
+                                    id="temp-value">0.7</span></label>
+                            <input type="range" class="form-range" id="temperature" name="temperature" min="0" max="1"
+                                step="0.1" value="0.7">
+                            <small class="text-muted">Düşük sıcaklık daha tutarlı, yüksek sıcaklık daha yaratıcı
+                                yanıtlar üretir</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Model Ayarlarını Kaydet
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Processing -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-file-alt me-2"></i>Belge İşleme</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('update_feature_settings') }}" method="post">
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="neuraagent_basic_enabled"
+                                name="neuraagent_basic_enabled" checked>
+                            <label class="form-check-label" for="neuraagent_basic_enabled">NeuraAgent Basic
+                                Etkin</label>
+                            <div class="text-muted small">Akıllı belge çözümleme ve test senaryosu oluşturma</div>
+                        </div>
+
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="advanced_document_parsing"
+                                name="advanced_document_parsing" checked>
+                            <label class="form-check-label" for="advanced_document_parsing">Gelişmiş Belge
+                                Ayrıştırma</label>
+                            <div class="text-muted small">Dokümanların gelişmiş yapısal analizini etkinleştirir</div>
+                        </div>
+
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="image_recognition"
+                                name="image_recognition" checked>
+                            <label class="form-check-label" for="image_recognition">Görüntü Tanıma</label>
+                            <div class="text-muted small">Belgelerden görüntü çıkarma ve analiz etme</div>
+                        </div>
+
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="table_extraction"
+                                name="table_extraction" checked>
+                            <label class="form-check-label" for="table_extraction">Tablo Çıkarma</label>
+                            <div class="text-muted small">Belgelerden tablo verileri çıkarma ve işleme</div>
+                        </div>
+
+                        <div class="form-check form-switch mb-3">
+                            <input class="form-check-input" type="checkbox" id="show_extracted_images"
+                                name="show_extracted_images" checked>
+                            <label class="form-check-label" for="show_extracted_images">Çıkarılan Görüntüleri
+                                Göster</label>
+                            <div class="text-muted small">Sonuçlar sayfasında çıkarılan görüntüleri gösterme</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Özellik Ayarlarını Kaydet
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Settings -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-desktop me-2"></i>Sistem Ayarları</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('update_system_settings') }}" method="post">
+                        <div class="mb-3">
+                            <label for="theme" class="form-label">Tema</label>
+                            <select class="form-select" id="theme" name="theme">
+                                <option value="dark">Koyu</option>
+                                <option value="light">Açık</option>
+                                <option value="auto">Otomatik (Sistem)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="language" class="form-label">Dil</label>
+                            <select class="form-select" id="language" name="language">
+                                <option value="tr">Türkçe</option>
+                                <option value="en">İngilizce</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="notification_level" class="form-label">Bildirim Seviyesi</label>
+                            <select class="form-select" id="notification_level" name="notification_level">
+                                <option value="info">Tüm Bildirimler</option>
+                                <option value="warning">Sadece Uyarılar ve Hatalar</option>
+                                <option value="error">Sadece Hatalar</option>
+                                <option value="none">Bildirimler Kapalı</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Sistem Ayarlarını Kaydet
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cache Management -->
+    <div class="row mt-2">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0"><i class="fas fa-trash-alt me-2"></i>Önbellek Yönetimi</h5>
+                </div>
+                <div class="card-body">
+                    <p>Sistem önbelleğini temizleyerek uygulamayı varsayılan ayarlara döndürebilirsiniz.
+                        Bu işlem kullanıcı ayarlarını sıfırlar ancak veritabanındaki belge ve test senaryolarını
+                        etkilemez.</p>
+
+                    <button id="clear-cache-btn" class="btn btn-outline-warning">
+                        <i class="fas fa-broom me-2"></i>Tüm Sistem Önbelleğini Temizle
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Temperature slider live update
+    document.getElementById('temperature').addEventListener('input', function () {
+        document.getElementById('temp-value').textContent = this.value;
+    });
+
+    // Password toggle visibility
+    document.querySelectorAll('.toggle-password').forEach(function (button) {
+        button.addEventListener('click', function () {
+            const input = this.previousElementSibling;
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+            this.querySelector('i').classList.toggle('fa-eye');
+            this.querySelector('i').classList.toggle('fa-eye-slash');
+        });
+    });
+
+    // Clear cache button
+    document.getElementById('clear-cache-btn').addEventListener('click', function () {
+        if (confirm('Tüm sistem önbelleğini temizlemek istediğinizden emin misiniz?')) {
+            fetch('/clear_all_cache', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Önbellek başarıyla temizlendi. Sayfa yenileniyor...');
+                        window.location.reload();
+                    } else {
+                        alert('Önbellek temizlenirken bir hata oluştu: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    alert('İstek gönderilirken bir hata oluştu: ' + error);
+                });
+        }
+    });
+</script>
+{% endblock %}

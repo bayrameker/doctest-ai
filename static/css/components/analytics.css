@@ -1,0 +1,393 @@
+/* ================================
+   ANALYTICS STYLES
+   ================================ */
+
+/* Ana analytik header bölümü */
+.analytics-header {
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background-color: var(--bs-dark);
+    border-radius: 0.5rem;
+    border-left: 5px solid #126e82;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.analytics-header:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    transform: translateY(-3px);
+}
+
+.analytics-heading {
+    margin-bottom: 1rem;
+    color: #fff;
+    font-weight: 700;
+    font-family: 'Outfit', sans-serif;
+    position: relative;
+    display: inline-block;
+}
+
+.analytics-heading::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -8px;
+    width: 40%;
+    height: 3px;
+    background: linear-gradient(to right, #126e82, transparent);
+}
+
+/* Uyarı Kutuları */
+.analytics-alert {
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+    border: none;
+    border-radius: 0.5rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.analytics-alert:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.analytics-alert .alert-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    font-size: 1.5rem;
+}
+
+.analytics-alert .alert-heading {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+.analytics-alert-info {
+    background-color: rgba(18, 110, 130, 0.15);
+    border-left: 5px solid #126e82;
+}
+
+.analytics-alert-info .alert-icon {
+    background-color: rgba(18, 110, 130, 0.8);
+    color: #fff;
+}
+
+.analytics-alert-warning {
+    background-color: rgba(242, 183, 5, 0.15);
+    border-left: 5px solid #f2b705;
+}
+
+.analytics-alert-warning .alert-icon {
+    background-color: rgba(242, 183, 5, 0.8);
+    color: #fff;
+}
+
+/* Pulsing animasyonu */
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(18, 110, 130, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(18, 110, 130, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(18, 110, 130, 0);
+    }
+}
+
+/* Filtreleme bölümü */
+.filter-section {
+    background-color: var(--bs-dark);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    border-top: 3px solid #126e82;
+}
+
+.filter-section:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.filter-heading {
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+}
+
+.filter-heading i {
+    margin-right: 0.5rem;
+    color: #126e82;
+}
+
+/* İstatistik Kutuları */
+.stat-box {
+    background-color: var(--bs-dark);
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    height: calc(100% - 1.5rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.stat-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    border-color: rgba(18, 110, 130, 0.3);
+}
+
+.stat-title {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+    opacity: 0.85;
+}
+
+.stat-value {
+    color: #fff;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.stat-trend {
+    font-size: 0.9rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    display: inline-block;
+}
+
+.trend-up {
+    color: #4caf50;
+    background-color: rgba(76, 175, 80, 0.1);
+}
+
+.trend-down {
+    color: #f44336;
+    background-color: rgba(244, 67, 54, 0.1);
+}
+
+/* Analitik Kartları */
+.analytics-card {
+    background-color: var(--bs-dark);
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    height: calc(100% - 1.5rem);
+    border-top: 3px solid transparent;
+}
+
+.analytics-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    border-top-color: #126e82;
+}
+
+.analytics-card-title {
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.analytics-card-title i {
+    margin-right: 0.75rem;
+    color: #126e82;
+}
+
+.chart-container {
+    position: relative;
+    height: 280px;
+    width: 100%;
+}
+
+/* SQL Sorgu Bölümü */
+.query-section {
+    background-color: var(--bs-dark);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    border-top: 3px solid #f2b705;
+}
+
+.query-section:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+.query-title {
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.query-title i {
+    margin-right: 0.75rem;
+    color: #f2b705;
+}
+
+.query-editor {
+    width: 100%;
+    min-height: 120px;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Courier New', monospace;
+    resize: vertical;
+    transition: all 0.3s;
+}
+
+.query-editor:focus {
+    border-color: #126e82;
+    box-shadow: 0 0 0 0.25rem rgba(18, 110, 130, 0.25);
+    outline: none;
+}
+
+.query-result {
+    margin-top: 1.5rem;
+}
+
+.query-result-title {
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+}
+
+.query-result-title i {
+    margin-right: 0.75rem;
+    color: #126e82;
+}
+
+/* Sonuç Tablosu */
+.result-table {
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #fff;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.result-table thead th {
+    background-color: rgba(18, 110, 130, 0.2);
+    border-bottom: none;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    color: #fff;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.result-table thead th:first-child {
+    border-top-left-radius: 0.5rem;
+}
+
+.result-table thead th:last-child {
+    border-top-right-radius: 0.5rem;
+}
+
+.result-table tbody tr {
+    transition: all 0.3s;
+}
+
+.result-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.result-table tbody td {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    vertical-align: middle;
+}
+
+.result-table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 0.5rem;
+}
+
+.result-table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 0.5rem;
+}
+
+/* Animasyonlar */
+.fadeInUp {
+    animation: fadeInUp 0.5s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive düzenlemeler */
+@media (max-width: 767.98px) {
+    .analytics-header {
+        padding: 1.5rem;
+    }
+    
+    .stat-box {
+        margin-bottom: 1rem;
+    }
+    
+    .chart-container {
+        height: 250px;
+    }
+    
+    .analytics-card {
+        padding: 1rem;
+    }
+    
+    .query-section {
+        padding: 1rem;
+    }
+    
+    .filter-section {
+        padding: 1rem;
+    }
+    
+    .result-table thead th, 
+    .result-table tbody td {
+        padding: 0.5rem;
+    }
+}

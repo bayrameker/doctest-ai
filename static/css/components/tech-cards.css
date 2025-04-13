@@ -1,0 +1,165 @@
+/* ================================
+   TECHNOLOGY CARDS 3D STYLES
+   ================================ */
+
+/* Doctest Technology section 3D styling */
+.api-tech-section-3d {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    min-height: 30rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    margin: 4rem 0;
+}
+
+.tech-section-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #0a2342 0%, #126e82 80%);
+    z-index: 1;
+    overflow: hidden;
+}
+
+.tech-section-background::before {
+    content: "";
+    position: absolute;
+    width: 120%;
+    height: 120%;
+    top: -10%;
+    left: -10%;
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 70%);
+    animation: pulse 8s infinite ease-in-out;
+}
+
+.tech-section-content {
+    position: relative;
+    z-index: 2;
+    padding: 3rem 2rem;
+}
+
+/* Modern 3D Tech Cards */
+.tech-cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.tech-card {
+    background-color: transparent;
+    width: 200px;
+    height: 200px;
+    perspective: 1000px;
+}
+
+.tech-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+}
+
+.tech-card:hover .tech-card-inner {
+    transform: rotateY(180deg);
+}
+
+.tech-card-front,
+.tech-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem;
+    border-radius: 15px;
+}
+
+.tech-card-front {
+    background: rgba(18, 110, 130, 0.8);
+    color: white;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tech-card-back {
+    background: rgba(10, 35, 66, 0.9);
+    color: white;
+    transform: rotateY(180deg);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Legacy styles for compatibility with existing code */
+.api-tech-section {
+    position: relative;
+    padding: 30px;
+    background: linear-gradient(145deg,
+            rgba(28, 28, 48, 0.9) 0%,
+            rgba(22, 22, 44, 0.95) 100%);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+.api-tech-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 1;
+    z-index: -1;
+}
+
+.tech-icons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.tech-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100px;
+    transition: all 0.3s ease;
+}
+
+.tech-icon i {
+    font-size: 2rem;
+    color: var(--api-gold);
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+}
+
+.tech-icon span {
+    color: var(--api-light);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.tech-icon:hover {
+    transform: translateY(-5px);
+}
+
+.tech-icon:hover i {
+    transform: scale(1.2);
+    color: var(--api-accent);
+}

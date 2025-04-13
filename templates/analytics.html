@@ -1,0 +1,299 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<!-- Geliştirilmiş Analitik Başlık Bölümü -->
+<div class="analytics-header fadeInUp">
+    <h2 class="analytics-heading">Test Senaryosu Analitikleri</h2>
+    <p>Bu panel, test senaryolarınızın performansına, dağılımına ve etkinliğine ilişkin ayrıntılı analizler sunarak test sürecinizi optimize etmenize yardımcı olur.</p>
+    <div class="d-flex justify-content-end mt-3">
+        <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i> Ana Sayfaya Dön
+        </a>
+    </div>
+</div>
+
+{% if not analytics_data %}
+<!-- Veri Yok Durumu - Geliştirilmiş Tasarım -->
+<div class="analytics-alert analytics-alert-info fadeInUp" style="animation-delay: 0.1s;">
+    <div class="d-flex">
+        <div class="alert-icon pulse">
+            <i class="fas fa-info-circle"></i>
+        </div>
+        <div class="ms-3">
+            <h5 class="alert-heading">Henüz Analiz Verisi Yok</h5>
+            <p class="mb-0">Test senaryoları oluşturduğunuzda burada detaylı analitikler görüntülenecektir. Ana sayfaya dönüp yeni bir doküman yükleyerek test senaryoları oluşturabilirsiniz.</p>
+        </div>
+    </div>
+</div>
+{% else %}
+
+<!-- Analitik Veri JS -->
+<script>
+    window.analyticsData = {
+        categoryDistribution: {% if analytics_data and analytics_data[0].category_distribution %}
+            {{ analytics_data[0].category_distribution|tojson }}
+        {% else %}
+            {
+                "labels": ["Arayüz", "İşlevsellik", "API", "Performans", "Güvenlik"],
+                "data": [35, 25, 15, 10, 15]
+            }
+        {% endif %},
+        complexityDistribution: {% if analytics_data and analytics_data[0].complexity_distribution %}
+            {{ analytics_data[0].complexity_distribution|tojson }}
+        {% else %}
+            {
+                "labels": ["Basit", "Orta", "Karmaşık"],
+                "data": [40, 35, 25]
+            }
+        {% endif %},
+        coverageScore: {{ (analytics_data|sum(attribute='coverage_score') / analytics_data|length)|round(1) if analytics_data else 68.5 }},
+        timeData: {
+            labels: ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs"], 
+            scenarios: [12, 19, 25, 32, 45],
+            testCases: [35, 42, 78, 95, 130]
+        }
+    };
+</script>
+
+<!-- Filtreleme Bölümü -->
+<div class="filter-section fadeInUp" style="animation-delay: 0.2s;">
+    <h5 class="filter-heading"><i class="fas fa-filter"></i> Filtreleme Seçenekleri</h5>
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            <label for="categoryFilter" class="form-label">Kategori</label>
+            <select class="form-select" id="categoryFilter">
+                <option value="">Tümü</option>
+                <option value="Arayüz">Arayüz</option>
+                <option value="İşlevsellik">İşlevsellik</option>
+                <option value="API">API</option>
+                <option value="Performans">Performans</option>
+                <option value="Güvenlik">Güvenlik</option>
+            </select>
+        </div>
+        <div class="col-md-3 mb-3">
+            <label for="priorityFilter" class="form-label">Öncelik</label>
+            <select class="form-select" id="priorityFilter">
+                <option value="">Tümü</option>
+                <option value="Yüksek">Yüksek</option>
+                <option value="Orta">Orta</option>
+                <option value="Düşük">Düşük</option>
+            </select>
+        </div>
+        <div class="col-md-3 mb-3">
+            <label for="dateRangeFilter" class="form-label">Tarih Aralığı</label>
+            <select class="form-select" id="dateRangeFilter">
+                <option value="">Tümü</option>
+                <option value="today">Bugün</option>
+                <option value="week">Bu Hafta</option>
+                <option value="month">Bu Ay</option>
+                <option value="custom">Özel Aralık</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-end mb-3">
+            <button class="btn btn-primary w-100" id="applyFilters">
+                <i class="fas fa-search me-2"></i> Filtrele
+            </button>
+        </div>
+    </div>
+    <div id="filterStatus" class="mt-2" style="display: none;"></div>
+</div>
+
+<!-- Özet İstatistikler Row -->
+<div class="row mb-4">
+    <!-- Sol Taraf (İstatistik Kutuları) -->
+    <div class="col-md-6">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="stat-box fadeInUp" style="animation-delay: 0.3s;">
+                    <div class="stat-title"><i class="fas fa-file-alt me-2 text-info"></i> Toplam Doküman</div>
+                    <div class="stat-value">{{ analytics_data|length }}</div>
+                    <div class="stat-trend trend-up">
+                        <i class="fas fa-arrow-up"></i> %15
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="stat-box fadeInUp" style="animation-delay: 0.4s;">
+                    <div class="stat-title"><i class="fas fa-cube me-2 text-primary"></i> Toplam Senaryo</div>
+                    <div class="stat-value">{{ analytics_data|sum(attribute='total_scenarios') }}</div>
+                    <div class="stat-trend trend-up">
+                        <i class="fas fa-arrow-up"></i> %22
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="stat-box fadeInUp" style="animation-delay: 0.5s;">
+                    <div class="stat-title"><i class="fas fa-vial me-2 text-success"></i> Toplam Test</div>
+                    <div class="stat-value">{{ analytics_data|sum(attribute='total_test_cases') }}</div>
+                    <div class="stat-trend trend-up">
+                        <i class="fas fa-arrow-up"></i> %28
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="stat-box fadeInUp" style="animation-delay: 0.6s;">
+                    <div class="stat-title"><i class="fas fa-tachometer-alt me-2 text-warning"></i> Ort. Kapsama</div>
+                    <div class="stat-value">{{ (analytics_data|sum(attribute='coverage_score') / analytics_data|length)|round(1) }}%</div>
+                    <div class="stat-trend trend-up">
+                        <i class="fas fa-arrow-up"></i> %5
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sağ Taraf (Kapsama Skoru Grafiği) -->
+    <div class="col-md-6">
+        <div class="analytics-card fadeInUp" style="animation-delay: 0.4s;">
+            <div class="analytics-card-title">
+                <i class="fas fa-chart-pie"></i> Kapsama Skoru
+            </div>
+            <div class="chart-container">
+                <canvas id="coverageChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Grafikler Row -->
+<div class="row mb-4">
+    <!-- Kategori Dağılımı -->
+    <div class="col-md-6">
+        <div class="analytics-card fadeInUp" style="animation-delay: 0.5s;">
+            <div class="analytics-card-title">
+                <i class="fas fa-tags"></i> Kategori Dağılımı
+            </div>
+            <div class="chart-container">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Karmaşıklık Dağılımı -->
+    <div class="col-md-6">
+        <div class="analytics-card fadeInUp" style="animation-delay: 0.6s;">
+            <div class="analytics-card-title">
+                <i class="fas fa-project-diagram"></i> Karmaşıklık Dağılımı
+            </div>
+            <div class="chart-container">
+                <canvas id="complexityChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Zaman İçinde Senaryo Gelişimi -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="analytics-card fadeInUp" style="animation-delay: 0.7s;">
+            <div class="analytics-card-title">
+                <i class="fas fa-chart-line"></i> Zaman İçinde Test Senaryoları Gelişimi
+            </div>
+            <div class="chart-container">
+                <canvas id="scenariosTimeChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Test Senaryoları Tablosu -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="analytics-card fadeInUp" style="animation-delay: 0.8s;">
+            <div class="analytics-card-title">
+                <i class="fas fa-table"></i> Oluşturulmuş Test Senaryoları
+            </div>
+            <div class="table-responsive mt-3">
+                <table class="result-table">
+                    <thead>
+                        <tr>
+                            <th>Doküman</th>
+                            <th>AI Modeli</th>
+                            <th>Tarih</th>
+                            <th>Senaryolar</th>
+                            <th>Test Durumları</th>
+                            <th>Kapsama</th>
+                            <th>İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in analytics_data %}
+                        <tr>
+                            <td>{{ item.document }}</td>
+                            <td>
+                                <span class="badge rounded-pill bg-secondary">
+                                    <i class="fas fa-robot me-1"></i> {{ item.ai_model }}
+                                </span>
+                            </td>
+                            <td><i class="fas fa-calendar-alt me-1 text-muted"></i> {{ item.date.strftime('%d.%m.%Y %H:%M') }}</td>
+                            <td>{{ item.total_scenarios }}</td>
+                            <td>{{ item.total_test_cases }}</td>
+                            <td>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-success" role="progressbar"
+                                        style="width: {{ item.coverage_score }}%;"
+                                        aria-valuenow="{{ item.coverage_score }}" aria-valuemin="0"
+                                        aria-valuemax="100"></div>
+                                </div>
+                                <small class="mt-1 d-block text-end">{{ item.coverage_score|round(1) }}%</small>
+                            </td>
+                            <td>
+                                <a href="{{ url_for('results', id=item.id) }}" class="btn btn-sm btn-outline-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SQL Sorgu Editörü -->
+<div class="query-section fadeInUp" style="animation-delay: 0.9s;">
+    <div class="query-title">
+        <i class="fas fa-database"></i> SQL Analitik Sorgusu
+    </div>
+    <form id="queryForm" action="{{ url_for('run_analytics_query') }}" method="post">
+        <textarea id="queryEditor" class="query-editor" name="sql_query" placeholder="SELECT d.filename, s.ai_model, s.total_scenarios, a.coverage_score FROM test_scenario_sets s JOIN documents d ON s.document_id = d.id JOIN scenario_analytics a ON a.scenario_set_id = s.id WHERE s.total_scenarios > 5 ORDER BY a.coverage_score DESC;"></textarea>
+        <div class="d-flex justify-content-end mt-3">
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-play me-2"></i> Sorguyu Çalıştır
+            </button>
+        </div>
+    </form>
+    
+    <div id="queryResultContainer" class="query-result">
+        {% if query_results %}
+        <div class="query-result-title">
+            <i class="fas fa-table"></i>
+            Sorgu Sonuçları
+        </div>
+        <div class="table-responsive mt-3">
+            <table class="result-table">
+                <thead>
+                    <tr>
+                        {% for column in query_results.columns %}
+                        <th>{{ column }}</th>
+                        {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in query_results.data %}
+                    <tr>
+                        {% for value in row %}
+                        <td>{{ value }}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endif %}
+{% endblock %}

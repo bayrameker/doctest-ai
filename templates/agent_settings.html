@@ -1,0 +1,192 @@
+{% extends 'layout.html' %}
+
+{% block title %}NeuraAgent Ayarları{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-robot me-2"></i> NeuraAgent Basic Ayarları
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>NeuraAgent Basic</strong>, dokümanları analiz eden, veritabanı destekli, akıllı bir ajanıdır. Dokümanları daha etkin bir şekilde işler ve maksimum veri çıktısı sağlar.
+                    </div>
+                    
+                    <form method="post" action="{{ url_for('update_agent_settings') }}">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enable_agent" name="enable_agent" {% if agent_settings.enable_agent %}checked{% endif %}>
+                                    <label class="form-check-label" for="enable_agent">NeuraAgent Basic'i Etkinleştir</label>
+                                </div>
+                                <small class="text-muted">Doküman işleme sırasında NeuraAgent Basic kullanımını etkinleştirir</small>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="use_db_cache" name="use_db_cache" {% if agent_settings.use_db_cache %}checked{% endif %}>
+                                    <label class="form-check-label" for="use_db_cache">Veritabanı Önbelleğini Kullan</label>
+                                </div>
+                                <small class="text-muted">Veritabanı önbelleğini kullanarak benzer dokümanları daha hızlı işler</small>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="optimization_level" class="form-label">Optimizasyon Seviyesi</label>
+                                <select class="form-select" id="optimization_level" name="optimization_level">
+                                    <option value="low" {% if agent_settings.optimization_level == 'low' %}selected{% endif %}>Düşük - Temel optimizasyon</option>
+                                    <option value="medium" {% if agent_settings.optimization_level == 'medium' %}selected{% endif %}>Orta - Dengeli optimizasyon</option>
+                                    <option value="high" {% if agent_settings.optimization_level == 'high' %}selected{% endif %}>Yüksek - Maksimum optimizasyon</option>
+                                </select>
+                                <small class="text-muted">Doküman işleme optimizasyon seviyesini belirler</small>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="memory_mode" class="form-label">Hafıza Modu</label>
+                                <select class="form-select" id="memory_mode" name="memory_mode">
+                                    <option value="session" {% if agent_settings.memory_mode == 'session' %}selected{% endif %}>Oturum - Geçici bellek</option>
+                                    <option value="persistent" {% if agent_settings.memory_mode == 'persistent' %}selected{% endif %}>Kalıcı - Veritabanı hafızası</option>
+                                    <option value="hybrid" {% if agent_settings.memory_mode == 'hybrid' %}selected{% endif %}>Hibrit - Oturum + Veritabanı</option>
+                                </select>
+                                <small class="text-muted">Doküman analiz sonuçlarının nasıl saklanacağını belirler</small>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <label for="max_document_size" class="form-label">Maksimum Doküman Boyutu (KB)</label>
+                                <input type="range" class="form-range" id="max_document_size" name="max_document_size" 
+                                       min="1000" max="20000" step="1000" value="{{ agent_settings.max_document_size }}">
+                                <div class="d-flex justify-content-between">
+                                    <small>1 MB</small>
+                                    <small id="size_value">{{ agent_settings.max_document_size // 1000 }} MB</small>
+                                    <small>20 MB</small>
+                                </div>
+                                <small class="text-muted">İşlenecek maksimum doküman boyutunu belirler</small>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <div class="card bg-light">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">İleri Ayarlar</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="enable_concept_analysis" name="enable_concept_analysis" {% if agent_settings.enable_concept_analysis %}checked{% endif %}>
+                                                    <label class="form-check-label" for="enable_concept_analysis">Kavram Analizi</label>
+                                                </div>
+                                                <small class="text-muted">Dokümandan anahtar kavramları çıkarır ve analiz eder</small>
+                                            </div>
+                                            
+                                            <div class="col-md-6">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="enable_section_scoring" name="enable_section_scoring" {% if agent_settings.enable_section_scoring %}checked{% endif %}>
+                                                    <label class="form-check-label" for="enable_section_scoring">Bölüm Puanlama</label>
+                                                </div>
+                                                <small class="text-muted">Doküman bölümlerini önem derecesine göre puanlar</small>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="row mt-3">
+                                            <div class="col-md-6">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="enable_similarity_search" name="enable_similarity_search" {% if agent_settings.enable_similarity_search %}checked{% endif %}>
+                                                    <label class="form-check-label" for="enable_similarity_search">Benzerlik Araması</label>
+                                                </div>
+                                                <small class="text-muted">Dokümanlar arasında benzerlik araması yapar</small>
+                                            </div>
+                                            
+                                            <div class="col-md-6">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="enable_detailed_logging" name="enable_detailed_logging" {% if agent_settings.enable_detailed_logging %}checked{% endif %}>
+                                                    <label class="form-check-label" for="enable_detailed_logging">Detaylı Günlükleme</label>
+                                                </div>
+                                                <small class="text-muted">Ajanın tüm işlemlerinin detaylı günlüklerini tutar</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="d-flex justify-content-between">
+                                    <button type="reset" class="btn btn-outline-secondary">
+                                        <i class="fas fa-undo me-1"></i> Sıfırla
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-1"></i> Ayarları Kaydet
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card shadow mt-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-database me-2"></i> Veritabanı İstatistikleri
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card border-0 bg-light mb-3">
+                                <div class="card-body text-center">
+                                    <h1 class="display-4 text-primary">{{ db_stats.document_count }}</h1>
+                                    <p class="text-muted">İşlenen Doküman</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card border-0 bg-light mb-3">
+                                <div class="card-body text-center">
+                                    <h1 class="display-4 text-success">{{ db_stats.section_count }}</h1>
+                                    <p class="text-muted">Doküman Bölümü</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card border-0 bg-light mb-3">
+                                <div class="card-body text-center">
+                                    <h1 class="display-4 text-info">{{ db_stats.concept_count }}</h1>
+                                    <p class="text-muted">Çıkarılan Kavram</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('clear_agent_cache') }}" class="btn btn-outline-danger" onclick="return confirm('Ajan önbelleğini temizlemek istediğinizden emin misiniz?');">
+                            <i class="fas fa-trash-alt me-1"></i> Ajan Önbelleğini Temizle
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Doküman boyutu değerini göster
+    document.getElementById('max_document_size').addEventListener('input', function() {
+        document.getElementById('size_value').textContent = (this.value / 1000) + ' MB';
+    });
+</script>
+{% endblock %}

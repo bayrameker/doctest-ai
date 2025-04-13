@@ -1,0 +1,12 @@
+Bu bir örnek belgedir.
+
+Web tabanlı uygulama için test senaryoları oluşturmak için kullanılacaktır. 
+
+Uygulama şu özelliklere sahiptir:
+- Kullanıcı kaydı ve girişi
+- Belge yükleme
+- Belge içeriğini analiz etme
+- Test senaryoları oluşturma
+- Sonuçları dışa aktarma
+
+Sistem farklı AI sağlayıcılarla entegre çalışabilir.

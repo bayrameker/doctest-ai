@@ -1,0 +1,111 @@
+/* ================================
+   MODAL STYLES
+   ================================ */
+
+/* Modal styles */
+.modal-content {
+    background: linear-gradient(145deg,
+            rgba(28, 28, 48, 0.95) 0%,
+            rgba(22, 22, 44, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+    color: var(--api-light);
+}
+
+.modal-header {
+    border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+    background: linear-gradient(90deg, rgba(10, 35, 66, 0.8) 0%, rgba(18, 110, 130, 0.8) 100%);
+}
+
+.modal-footer {
+    border-top: 1px solid rgba(212, 175, 55, 0.2);
+    background: rgba(10, 35, 66, 0.3);
+}
+
+.modal pre {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px;
+    border-radius: 6px;
+}
+
+.modal code {
+    font-family: 'Fira Code', 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+}
+
+/* Custom code showcase styling */
+.code-block {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: linear-gradient(90deg, #0a2342, #0f3058);
+    border-radius: 8px 8px 0 0;
+    overflow: hidden;
+}
+
+.code-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--api-silver);
+    display: flex;
+    align-items: center;
+}
+
+.code-title i {
+    margin-right: 8px;
+    color: var(--api-gold);
+}
+
+.code-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.code-action-btn {
+    background: none;
+    border: none;
+    color: var(--api-silver);
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.code-action-btn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+pre.code-content {
+    margin: 0;
+    border-radius: 0 0 8px 8px;
+    background: linear-gradient(145deg,
+            rgba(15, 15, 25, 0.95) 0%,
+            rgba(25, 25, 40, 0.9) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+code {
+    color: var(--api-light);
+}
+
+.language-label {
+    font-size: 0.8rem;
+    color: var(--api-gold);
+    background-color: rgba(242, 183, 5, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+}

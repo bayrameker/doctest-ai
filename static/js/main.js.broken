@@ -1,0 +1,1321 @@
+// Main JavaScript for Document Test Scenario Generator
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle form submission with loading spinner
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function() {
+            showLoadingSpinner('Test senaryoları oluşturuluyor... Bu işlem bir dakika kadar sürebilir.');
+        });
+    }
+
+    // Initialize testScenariosData global variable
+    if (!window.testScenariosData) {
+        window.testScenariosData = {};
+        
+        // Try to extract data from the page if available
+        const scenarioElements = document.querySelectorAll('.scenario-card');
+        if (scenarioElements.length > 0) {
+            try {
+                const scenarios = Array.from(scenarioElements).map(elem => {
+                    return {
+                        title: elem.querySelector('.scenario-title')?.textContent || '',
+                        description: elem.querySelector('.scenario-description')?.textContent || '',
+                        // Additional parsing as needed
+                    };
+                });
+                window.testScenariosData.scenarios = scenarios;
+            } catch (e) {
+                console.error('Error initializing scenario data:', e);
+            }
+        }
+        
+        // Get summary if available
+        const summaryElement = document.querySelector('.summary-content');
+        if (summaryElement) {
+            window.testScenariosData.summary = summaryElement.textContent.trim();
+        }
+    }
+
+    // Set up export buttons
+    setupExportButtons();
+    
+    // Set up editable content
+    setupEditableContent();
+    
+    // Set up playground functionality
+    setupPlayground();
+    
+    // Set up test automation functionality
+    setupTestAutomation();
+});
+
+/**
+ * Shows a loading spinner overlay with custom message
+ * @param {string} message - Message to display with the spinner
+ */
+function showLoadingSpinner(message) {
+    // Create spinner overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'spinner-overlay';
+    
+    const spinnerHTML = `
+        <div class="spinner-container">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="spinner-text">${message}</div>
+        </div>
+    `;
+    
+    overlay.innerHTML = spinnerHTML;
+    document.body.appendChild(overlay);
+}
+
+/**
+ * Hides the loading spinner
+ */
+function hideLoadingSpinner() {
+    const overlay = document.querySelector('.spinner-overlay');
+    if (overlay) {
+        overlay.remove();
+    }
+}
+
+/**
+ * Sets up export functionality for the generated scenarios
+ */
+function setupExportButtons() {
+    const exportJsonBtn = document.getElementById('export-json');
+    const exportTextBtn = document.getElementById('export-text');
+    
+    if (exportJsonBtn) {
+        exportJsonBtn.addEventListener('click', function() {
+            exportScenarios('json');
+        });
+    }
+    
+    if (exportTextBtn) {
+        exportTextBtn.addEventListener('click', function() {
+            exportScenarios('text');
+        });
+    }
+}
+
+/**
+ * Exports the generated scenarios in the specified format
+ * @param {string} format - The format to export ('json' or 'text')
+ */
+function exportScenarios(format) {
+    showLoadingSpinner('Preparing export...');
+    
+    // Make AJAX request to server
+    fetch('/export', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `format=${format}`
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        hideLoadingSpinner();
+        
+        // Determine filename and content
+        let filename, content;
+        
+        if (format === 'json') {
+            filename = 'test_scenarios.json';
+            content = JSON.stringify(data, null, 2);
+        } else {
+            filename = 'test_scenarios.txt';
+            content = data.text;
+        }
+        
+        // Trigger download
+        downloadFile(content, filename, format === 'json' ? 'application/json' : 'text/plain');
+    })
+    .catch(error => {
+        hideLoadingSpinner();
+        console.error('Error:', error);
+        alert('An error occurred during export. Please try again.');
+    });
+}
+
+/**
+ * Creates and triggers a file download
+ * @param {string} content - The content to download
+ * @param {string} filename - The name of the file
+ * @param {string} contentType - The MIME type of the file
+ */
+function downloadFile(content, filename, contentType) {
+    const blob = new Blob([content], { type: contentType });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    
+    // Clean up
+    setTimeout(function() {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+    }, 0);
+}
+
+/**
+ * Sets up editable content functionality for the test scenarios
+ */
+function setupEditableContent() {
+    // Find all elements with the 'editable' class
+    const editableElements = document.querySelectorAll('.editable');
+    
+    if (editableElements.length === 0) {
+        return; // No editable elements found
+    }
+    
+    // Artık kendi CSS dosyamız olduğu için iç stil tanımlamaya gerek yok
+    /* 
+    const style = document.createElement('style');
+    style.textContent = `
+        .editable {
+            padding: 10px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            position: relative;
+            min-height: 50px;
+            line-height: 1.5;
+        }
+        
+        .editable:hover {
+            background-color: rgba(18, 110, 130, 0.05);
+            box-shadow: 0 0 0 1px rgba(18, 110, 130, 0.1);
+            cursor: pointer;
+        }
+        
+        .editable:hover::after {
+            content: "✏️";
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            font-size: 14px;
+            background-color: #126e82;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.8;
+        }
+        
+    document.head.appendChild(style);
+    */
+    
+    // Her düzenlenebilir öğeye tıklama olayı ekle
+            background-color: #f8f9fa;
+            border: none;
+            padding: 0;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .editor-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px 6px 0 0;
+            font-family: inherit;
+            font-size: inherit;
+            line-height: 1.5;
+            resize: vertical;
+            color: #333;
+            background-color: #fff;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .editor-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background-color: #f8f9fa;
+            border-top: 1px solid #e2e8f0;
+            border-radius: 0 0 6px 6px;
+        }
+        
+        .editor-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .editable .btn-outline-secondary {
+            color: #64748b;
+            border-color: #e2e8f0;
+        }
+        
+        .editable .btn-outline-secondary:hover {
+            background-color: #f1f5f9;
+            color: #334155;
+        }
+        
+        .editable .btn-success {
+            background-color: #126e82;
+            border-color: #126e82;
+        }
+        
+        .editable .btn-success:hover {
+            background-color: #0a5c6d;
+            border-color: #0a5c6d;
+        }
+        
+        .editor-message {
+            display: flex;
+            align-items: center;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+        
+        .editable .alert {
+            margin-top: 10px;
+            border-radius: 6px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Her düzenlenebilir öğeye tıklama olayı ekle
+    editableElements.forEach(element => {
+        // Veri özelliklerini kontrol et
+        const field = element.dataset.field;
+        const scenarioIndex = element.dataset.scenarioIndex;
+        const testcaseIndex = element.dataset.testcaseIndex;
+        
+        // Edit özelliğini (kalem) oluştur
+        const editIcon = document.createElement('div');
+        editIcon.className = 'edit-icon';
+        editIcon.innerHTML = '<i class="fas fa-edit"></i>';
+        editIcon.style.display = 'none';
+        
+        // Düzenleme fonksiyonunu tanımla
+        element.addEventListener('click', function(event) {
+            // Eğer zaten düzenleme modundaysa işlem yapma
+            if (this.classList.contains('editing')) {
+                return;
+            }
+            
+            // Orijinal içerik verilerini sakla
+            const originalText = this.textContent.trim();
+            const originalContent = this.innerHTML;
+            
+            // Düzenleme arayüzünü oluştur
+            const editor = document.createElement('div');
+            editor.className = 'editor-container';
+            
+            // Textarea oluştur
+            const textarea = document.createElement('textarea');
+            textarea.className = 'editor-textarea';
+            textarea.value = originalText;
+            textarea.placeholder = 'İçeriği buraya girin...';
+            
+            // Toolbar oluştur
+            const toolbar = document.createElement('div');
+            toolbar.className = 'editor-toolbar';
+            
+            // Mesaj alanını oluştur
+            const message = document.createElement('div');
+            message.className = 'editor-message';
+            message.innerHTML = '<i class="fas fa-info-circle me-1"></i> Değişikliklerinizi kaydedin veya iptal edin';
+            
+            // Butonları oluştur
+            const buttons = document.createElement('div');
+            buttons.className = 'editor-buttons';
+            
+            // İptal butonu
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'btn btn-sm btn-outline-secondary';
+            cancelBtn.innerHTML = '<i class="fas fa-times me-1"></i>İptal';
+            cancelBtn.type = 'button';
+            
+            // Kaydet butonu
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'btn btn-sm btn-success';
+            saveBtn.innerHTML = '<i class="fas fa-check me-1"></i>Kaydet';
+            saveBtn.type = 'button';
+            
+            // Butonları ekle
+            buttons.appendChild(cancelBtn);
+            buttons.appendChild(saveBtn);
+            toolbar.appendChild(message);
+            toolbar.appendChild(buttons);
+            
+            // Editörü oluştur
+            editor.appendChild(textarea);
+            editor.appendChild(toolbar);
+            
+            // İçeriği temizle ve editörü ekle
+            this.innerHTML = '';
+            this.appendChild(editor);
+            this.classList.add('editing');
+            
+            // Textarea'ya odaklan
+            textarea.focus();
+            
+            // Kaydet butonu işlevi
+            const saveHandler = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const newText = textarea.value;
+                
+                // Mesaj alanını güncelle
+                message.innerHTML = '<i class="fas fa-sync-alt fa-spin me-1"></i> Kaydediliyor...';
+                
+                // Veritabanına kaydetmek için API'ye istek gönder
+                const documentId = this.dataset.documentId;
+                
+                console.log("Document ID:", documentId);
+                
+                // API için veri hazırla
+                const updateData = {
+                    scenario_set_id: documentId,
+                    field: field,
+                    value: newText,
+                    scenario_index: scenarioIndex,
+                    test_case_index: testcaseIndex
+                };
+                
+                console.log("Sending update data:", JSON.stringify(updateData));
+                
+                // API'ye istek gönder
+                fetch('/api/update_scenario', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updateData)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // API isteği başarılı oldu
+                        
+                        // Editörü kaldır
+                        editor.remove();
+                        
+                        // İçeriği güncelle
+                        this.textContent = newText;
+                        this.classList.remove('editing');
+                        
+                        // Bildirim göster
+                        const notification = document.createElement('div');
+                        notification.className = 'alert alert-success py-2 px-3';
+                        notification.innerHTML = '<i class="fas fa-check-circle me-2"></i>Değişiklikler başarıyla kaydedildi!';
+                        this.appendChild(notification);
+                        
+                        // Yerel veriyi de güncelle
+                        if (window.testScenariosData) {
+                            if (field === 'summary') {
+                                window.testScenariosData.summary = newText;
+                            } else if (scenarioIndex !== undefined) {
+                                try {
+                                    const scIndex = parseInt(scenarioIndex);
+                                    if (testcaseIndex !== undefined) {
+                                        const tcIndex = parseInt(testcaseIndex);
+                                        window.testScenariosData.scenarios[scIndex].test_cases[tcIndex][field] = newText;
+                                    } else {
+                                        window.testScenariosData.scenarios[scIndex][field] = newText;
+                                    }
+                                } catch (e) {
+                                    console.error('Error updating scenario data:', e);
+                                }
+                            }
+                        }
+                        
+                        // 2 saniye sonra bildirimi kaldır
+                        setTimeout(() => {
+                            if (notification && notification.parentNode) {
+                                notification.remove();
+                            }
+                        }, 2000);
+                        
+                        console.log(`Updated content for ${field} in scenario ${scenarioIndex || 'undefined'}${testcaseIndex ? ', test case ' + testcaseIndex : ''}`);
+                    } else {
+                        // Hata olduğunda mesaj göster
+                        const notification = document.createElement('div');
+                        notification.className = 'alert alert-danger py-2 px-3';
+                        notification.innerHTML = `<i class="fas fa-exclamation-triangle me-2"></i>Hata: ${data.error || 'Bilinmeyen hata'}`;
+                        
+                        // Editörü kaldır
+                        editor.remove();
+                        
+                        // Orijinal içeriği geri yükle ve bildirimi ekle
+                        this.innerHTML = originalContent;
+                        this.classList.remove('editing');
+                        this.appendChild(notification);
+                        
+                        console.error('Error saving to database:', data.error);
+                        
+                        // 3 saniye sonra bildirimi kaldır
+                        setTimeout(() => {
+                            if (notification && notification.parentNode) {
+                                notification.remove();
+                            }
+                        }, 3000);
+                    }
+                })
+                .catch(error => {
+                    console.error('API request failed:', error);
+                    
+                    // Hata mesajı göster
+                    const notification = document.createElement('div');
+                    notification.className = 'alert alert-danger py-2 px-3';
+                    notification.innerHTML = '<i class="fas fa-exclamation-triangle me-2"></i>Sunucu hatası! Değişiklikler kaydedilemedi.';
+                    
+                    // Editörü kaldır
+                    editor.remove();
+                    
+                    // Orijinal içeriği geri yükle ve bildirimi ekle
+                    this.innerHTML = originalContent;
+                    this.classList.remove('editing');
+                    this.appendChild(notification);
+                    
+                    // 3 saniye sonra bildirimi kaldır
+                    setTimeout(() => {
+                        if (notification && notification.parentNode) {
+                            notification.remove();
+                        }
+                    }, 3000);
+                });
+            };
+            
+            // İptal butonu işlevi
+            const cancelHandler = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Editörü kaldır
+                editor.remove();
+                
+                // Orijinal içeriği geri yükle
+                this.innerHTML = originalContent;
+                this.classList.remove('editing');
+                
+                // Bildirim ekle
+                const notification = document.createElement('div');
+                notification.className = 'alert alert-info py-2 px-3';
+                notification.innerHTML = '<i class="fas fa-info-circle me-2"></i>Değişiklikler iptal edildi';
+                this.appendChild(notification);
+                
+                // 2 saniye sonra bildirimi kaldır
+                setTimeout(() => {
+                    if (notification && notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 2000);
+            };
+            
+            // Butonlara tek seferlik olay dinleyicileri ekle
+            saveBtn.addEventListener('click', saveHandler);
+            cancelBtn.addEventListener('click', cancelHandler);
+            
+            // Enter ve Escape tuş olaylarını ele al
+            textarea.addEventListener('keydown', function(e) {
+                // Ctrl+Enter ile kaydet
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    saveHandler(e);
+                }
+                
+                // Escape ile iptal et
+                if (e.key === 'Escape') {
+                    cancelHandler(e);
+                }
+            });
+            
+            // Dışarı tıklanması engellenir
+            event.stopPropagation();
+        });
+    });
+}
+
+/**
+ * Sets up the playground functionality for interactive test scenario editing
+ */
+function setupPlayground() {
+    const scenarioSelect = document.getElementById('scenarioSelect');
+    const playgroundContainer = document.getElementById('playgroundContainer');
+    const playgroundTitle = document.getElementById('playgroundTitle');
+    const playgroundPriority = document.getElementById('playgroundPriority');
+    const playgroundDescription = document.getElementById('playgroundDescription');
+    const playgroundSteps = document.getElementById('playgroundSteps');
+    const playgroundExpectedResults = document.getElementById('playgroundExpectedResults');
+    const resetPlaygroundBtn = document.getElementById('resetPlaygroundBtn');
+    const savePlaygroundBtn = document.getElementById('savePlaygroundBtn');
+    
+    if (!scenarioSelect) return;
+    
+    // Global variable to store original scenario data
+    let originalScenarioData = null;
+    let currentScenarioIndex = -1;
+    
+    // Load test scenarios data from the page
+    const testScenariosData = getTestScenariosData();
+    
+    scenarioSelect.addEventListener('change', function() {
+        const selectedIndex = this.value;
+        if (!selectedIndex) {
+            playgroundContainer.classList.add('d-none');
+            return;
+        }
+        
+        currentScenarioIndex = parseInt(selectedIndex);
+        const scenario = testScenariosData.scenarios[currentScenarioIndex];
+        originalScenarioData = JSON.parse(JSON.stringify(scenario));
+        
+        // Populate the playground with scenario data
+        playgroundTitle.value = scenario.title || '';
+        playgroundPriority.value = scenario.priority || 'Orta';
+        playgroundDescription.value = scenario.description || '';
+        
+        // Get test steps and expected results from the first test case
+        if (scenario.test_cases && scenario.test_cases.length > 0) {
+            const testCase = scenario.test_cases[0];
+            playgroundSteps.textContent = testCase.steps || '';
+            playgroundExpectedResults.textContent = testCase.expected_results || '';
+        } else {
+            playgroundSteps.textContent = '';
+            playgroundExpectedResults.textContent = '';
+        }
+        
+        // Show the playground container
+        playgroundContainer.classList.remove('d-none');
+        
+        // Initialize code highlighting if Prism.js is available
+        if (typeof Prism !== 'undefined') {
+            Prism.highlightElement(playgroundSteps);
+            Prism.highlightElement(playgroundExpectedResults);
+        }
+    });
+    
+    // Handle reset button click
+    if (resetPlaygroundBtn) {
+        resetPlaygroundBtn.addEventListener('click', function() {
+            if (!originalScenarioData || currentScenarioIndex === -1) return;
+            
+            // Reset form values to original data
+            playgroundTitle.value = originalScenarioData.title || '';
+            playgroundPriority.value = originalScenarioData.priority || 'Orta';
+            playgroundDescription.value = originalScenarioData.description || '';
+            
+            if (originalScenarioData.test_cases && originalScenarioData.test_cases.length > 0) {
+                const testCase = originalScenarioData.test_cases[0];
+                playgroundSteps.textContent = testCase.steps || '';
+                playgroundExpectedResults.textContent = testCase.expected_results || '';
+                
+                // Re-highlight if Prism.js is available
+                if (typeof Prism !== 'undefined') {
+                    Prism.highlightElement(playgroundSteps);
+                    Prism.highlightElement(playgroundExpectedResults);
+                }
+            }
+        });
+    }
+    
+    // Handle save button click
+    if (savePlaygroundBtn) {
+        savePlaygroundBtn.addEventListener('click', function() {
+            if (currentScenarioIndex === -1) return;
+            
+            // Get any existing alert and remove it
+            const existingAlert = playgroundContainer.querySelector('.alert');
+            if (existingAlert) {
+                existingAlert.remove();
+            }
+            
+            // Create a new alert with a progress spinner
+            const savingAlertHTML = `
+                <div class="alert alert-info alert-dismissible fade show d-flex align-items-center" role="alert">
+                    <div class="spinner-border spinner-border-sm me-2" role="status">
+                        <span class="visually-hidden">Kaydediliyor...</span>
+                    </div>
+                    <div>Değişiklikler kaydediliyor...</div>
+                </div>
+            `;
+            
+            playgroundContainer.insertAdjacentHTML('afterbegin', savingAlertHTML);
+            
+            // Simulate saving process with a short delay
+            setTimeout(() => {
+                // Remove the saving alert
+                const savingAlert = playgroundContainer.querySelector('.alert');
+                if (savingAlert) {
+                    savingAlert.remove();
+                }
+                
+                // Show success alert
+                const successAlertHTML = `
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <strong>Başarılı!</strong> Test senaryosu güncellendi.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                
+                playgroundContainer.insertAdjacentHTML('afterbegin', successAlertHTML);
+                
+                // Update the local data
+                if (window.testScenariosData && window.testScenariosData.scenarios && window.testScenariosData.scenarios[currentScenarioIndex]) {
+                    window.testScenariosData.scenarios[currentScenarioIndex].title = playgroundTitle.value;
+                    window.testScenariosData.scenarios[currentScenarioIndex].priority = playgroundPriority.value;
+                    window.testScenariosData.scenarios[currentScenarioIndex].description = playgroundDescription.value;
+                    
+                    if (window.testScenariosData.scenarios[currentScenarioIndex].test_cases && 
+                        window.testScenariosData.scenarios[currentScenarioIndex].test_cases.length > 0) {
+                        window.testScenariosData.scenarios[currentScenarioIndex].test_cases[0].steps = playgroundSteps.textContent;
+                        window.testScenariosData.scenarios[currentScenarioIndex].test_cases[0].expected_results = playgroundExpectedResults.textContent;
+                    }
+                }
+                
+                // Also update in testScenariosData (local variable)
+                testScenariosData.scenarios[currentScenarioIndex].title = playgroundTitle.value;
+                testScenariosData.scenarios[currentScenarioIndex].priority = playgroundPriority.value;
+                testScenariosData.scenarios[currentScenarioIndex].description = playgroundDescription.value;
+                
+                if (testScenariosData.scenarios[currentScenarioIndex].test_cases && 
+                    testScenariosData.scenarios[currentScenarioIndex].test_cases.length > 0) {
+                    testScenariosData.scenarios[currentScenarioIndex].test_cases[0].steps = playgroundSteps.textContent;
+                    testScenariosData.scenarios[currentScenarioIndex].test_cases[0].expected_results = playgroundExpectedResults.textContent;
+                }
+                
+                // Automatically remove the success alert after 3 seconds
+                setTimeout(() => {
+                    const alert = playgroundContainer.querySelector('.alert');
+                    if (alert) {
+                        alert.classList.remove('show');
+                        setTimeout(() => alert.remove(), 150);
+                    }
+                }, 3000);
+            }, 800); // Short delay to simulate saving process
+        });
+    }
+    
+    // Helper function to get test scenario data from page
+    function getTestScenariosData() {
+        try {
+            // Try to extract test scenarios data
+            // This is a placeholder - in a real app, this might be loaded from a global variable or a hidden input
+            return window.testScenariosData || { scenarios: [] };
+        } catch (e) {
+            console.error('Error retrieving test scenarios data:', e);
+            return { scenarios: [] };
+        }
+    }
+}
+
+/**
+ * Sets up the test automation functionality
+ */
+function setupTestAutomation() {
+    const scenarioSelect = document.getElementById('automationScenarioSelect');
+    const formatSelect = document.getElementById('automationFormatSelect');
+    const generateBtn = document.getElementById('generateAutomationBtn');
+    const automationResult = document.getElementById('automationResult');
+    const automationCode = document.getElementById('automationCode');
+    const copyBtn = document.getElementById('copyAutomationBtn');
+    
+    if (!generateBtn) return;
+    
+    // Load test scenarios data from the page
+    const testScenariosData = getTestScenariosData();
+    
+    generateBtn.addEventListener('click', function() {
+        const selectedScenarioIndex = scenarioSelect.value;
+        const selectedFormat = formatSelect.value;
+        
+        if (!selectedScenarioIndex) {
+            alert('Lütfen bir test senaryosu seçin.');
+            return;
+        }
+        
+        // Show loading spinner
+        showLoadingSpinner('Test otomasyonu oluşturuluyor...');
+        
+        // Simulate server call with setTimeout
+        setTimeout(() => {
+            hideLoadingSpinner();
+            
+            // Get selected scenario
+            const scenario = testScenariosData.scenarios[selectedScenarioIndex];
+            
+            // Generate automation code based on the selected format
+            const code = generateAutomationCode(scenario, selectedFormat);
+            
+            // Update the automation code display
+            automationCode.textContent = code;
+            automationCode.className = `language-${getLanguageFromFormat(selectedFormat)}`;
+            
+            // Show the result container
+            automationResult.classList.remove('d-none');
+            
+            // Initialize code highlighting if Prism.js is available
+            if (typeof Prism !== 'undefined') {
+                Prism.highlightElement(automationCode);
+            }
+        }, 1500);
+    });
+    
+    // Handle copy button click
+    if (copyBtn) {
+        copyBtn.addEventListener('click', function() {
+            // Copy code to clipboard
+            navigator.clipboard.writeText(automationCode.textContent).then(() => {
+                // Show feedback
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="fas fa-check me-1"></i>Kopyalandı';
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                }, 2000);
+            });
+        });
+    }
+    
+    // Helper function to get test scenario data from page
+    function getTestScenariosData() {
+        try {
+            // This would typically be loaded from a global variable or as JSON in the HTML
+            // For the demo, we'll create a simple mock data structure if none exists
+            if (window.testScenariosData) {
+                return window.testScenariosData;
+            }
+            
+            // Try to find the scenarios in the accordion
+            const scenarios = [];
+            document.querySelectorAll('.accordion-item').forEach((item, index) => {
+                const title = item.querySelector('.scenario-title')?.textContent || `Senaryo ${index + 1}`;
+                const description = item.querySelector('.scenario-description')?.textContent || '';
+                
+                const testCases = [];
+                item.querySelectorAll('.test-case-card').forEach((caseCard, caseIndex) => {
+                    const testTitle = caseCard.querySelector('.test-case-title')?.textContent || `Test ${caseIndex + 1}`;
+                    const steps = caseCard.querySelector('[data-field="steps"]')?.textContent || '';
+                    const expectedResults = caseCard.querySelector('[data-field="expected_results"]')?.textContent || '';
+                    
+                    testCases.push({
+                        title: testTitle.trim(),
+                        steps: steps.trim(),
+                        expected_results: expectedResults.trim()
+                    });
+                });
+                
+                scenarios.push({
+                    title: title.trim(),
+                    description: description.trim(),
+                    test_cases: testCases
+                });
+            });
+            
+            return { scenarios: scenarios };
+        } catch (e) {
+            console.error('Error retrieving test scenarios data:', e);
+            return { 
+                scenarios: [
+                    {
+                        title: 'Örnek Senaryo',
+                        description: 'Bu bir örnek test senaryosudur.',
+                        test_cases: [
+                            {
+                                title: 'Örnek Test',
+                                steps: '1. Adım bir\n2. Adım iki\n3. Adım üç',
+                                expected_results: '- Beklenen sonuç bir\n- Beklenen sonuç iki'
+                            }
+                        ]
+                    }
+                ] 
+            };
+        }
+    }
+    
+    /**
+     * Generates automation code for the given scenario and format
+     * @param {Object} scenario - The scenario object
+     * @param {string} format - The automation format
+     * @returns {string} - The generated code
+     */
+    function generateAutomationCode(scenario, format) {
+        // Get the first test case
+        const testCase = scenario.test_cases && scenario.test_cases.length > 0 
+            ? scenario.test_cases[0] 
+            : { title: 'Test Case', steps: 'No steps defined', expected_results: 'No expected results defined' };
+        
+        // Parse steps into an array
+        const steps = testCase.steps.split('\n')
+            .map(s => s.trim())
+            .filter(s => s.length > 0);
+            
+        // Parse expected results into an array
+        const expectedResults = testCase.expected_results.split('\n')
+            .map(s => s.trim())
+            .filter(s => s.length > 0);
+        
+        switch (format) {
+            case 'selenium-java':
+                return generateSeleniumJava(scenario.title, testCase.title, steps, expectedResults);
+            case 'selenium-python':
+                return generateSeleniumPython(scenario.title, testCase.title, steps, expectedResults);
+            case 'cypress':
+                return generateCypress(scenario.title, testCase.title, steps, expectedResults);
+            case 'playwright':
+                return generatePlaywright(scenario.title, testCase.title, steps, expectedResults);
+            case 'appium':
+                return generateAppium(scenario.title, testCase.title, steps, expectedResults);
+            case 'restassured':
+                return generateRestAssured(scenario.title, testCase.title, steps, expectedResults);
+            case 'cucumber':
+                return generateCucumber(scenario.title, testCase.title, steps, expectedResults);
+            default:
+                return '// Desteklenmeyen format';
+        }
+    }
+    
+    /**
+     * Gets the language for syntax highlighting based on the format
+     * @param {string} format - The automation format
+     * @returns {string} - The language for syntax highlighting
+     */
+    function getLanguageFromFormat(format) {
+        switch (format) {
+            case 'selenium-java':
+            case 'restassured':
+                return 'java';
+            case 'selenium-python':
+                return 'python';
+            case 'cypress':
+                return 'javascript';
+            case 'playwright':
+                return 'typescript';
+            case 'appium':
+                return 'java';
+            case 'cucumber':
+                return 'gherkin';
+            default:
+                return 'clike';
+        }
+    }
+    
+    /**
+     * Generates Selenium Java code
+     */
+    function generateSeleniumJava(scenarioTitle, testTitle, steps, expectedResults) {
+        const className = scenarioTitle.replace(/[^a-zA-Z0-9]/g, '') + 'Test';
+        const methodName = 'test' + testTitle.replace(/[^a-zA-Z0-9]/g, '');
+        
+        let stepsCode = '';
+        steps.forEach((step, index) => {
+            stepsCode += `        // Step ${index + 1}: ${step}\n`;
+            
+            // Generate some example code based on the step text
+            if (step.toLowerCase().includes('giriş') || step.toLowerCase().includes('login')) {
+                stepsCode += `        driver.findElement(By.id("username")).sendKeys("testuser");\n`;
+                stepsCode += `        driver.findElement(By.id("password")).sendKeys("password");\n`;
+                stepsCode += `        driver.findElement(By.id("loginButton")).click();\n`;
+            } else if (step.toLowerCase().includes('tıkla') || step.toLowerCase().includes('click')) {
+                stepsCode += `        driver.findElement(By.xpath("//button[contains(text(), 'Button')]")).click();\n`;
+            } else if (step.toLowerCase().includes('kontrol') || step.toLowerCase().includes('verify')) {
+                stepsCode += `        WebElement element = driver.findElement(By.id("resultElement"));\n`;
+                stepsCode += `        Assert.assertTrue("Element should be displayed", element.isDisplayed());\n`;
+            } else {
+                stepsCode += `        // Implement step: ${step}\n`;
+            }
+            
+            stepsCode += '\n';
+        });
+        
+        let assertCode = '';
+        expectedResults.forEach((result, index) => {
+            assertCode += `        // Validation ${index + 1}: ${result}\n`;
+            assertCode += `        Assert.assertTrue("Validation failed: ${result}", driver.findElement(By.id("resultElement")).isDisplayed());\n\n`;
+        });
+        
+        return `import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.junit.Assert;
+
+/**
+ * ${scenarioTitle}
+ * Test: ${testTitle}
+ */
+public class ${className} {
+    private WebDriver driver;
+    
+    @Before
+    public void setUp() {
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get("https://example.com");
+    }
+    
+    @Test
+    public void ${methodName}() {
+${stepsCode}
+        // Verify expected results
+${assertCode}    }
+    
+    @After
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+}`;
+    }
+    
+    /**
+     * Generates Selenium Python code
+     */
+    function generateSeleniumPython(scenarioTitle, testTitle, steps, expectedResults) {
+        const className = 'Test' + scenarioTitle.replace(/[^a-zA-Z0-9]/g, '');
+        const methodName = 'test_' + testTitle.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+        
+        let stepsCode = '';
+        steps.forEach((step, index) => {
+            stepsCode += `        # Step ${index + 1}: ${step}\n`;
+            
+            // Generate some example code based on the step text
+            if (step.toLowerCase().includes('giriş') || step.toLowerCase().includes('login')) {
+                stepsCode += `        self.driver.find_element(By.ID, "username").send_keys("testuser")\n`;
+                stepsCode += `        self.driver.find_element(By.ID, "password").send_keys("password")\n`;
+                stepsCode += `        self.driver.find_element(By.ID, "loginButton").click()\n`;
+            } else if (step.toLowerCase().includes('tıkla') || step.toLowerCase().includes('click')) {
+                stepsCode += `        self.driver.find_element(By.XPATH, "//button[contains(text(), 'Button')]").click()\n`;
+            } else if (step.toLowerCase().includes('kontrol') || step.toLowerCase().includes('verify')) {
+                stepsCode += `        element = self.driver.find_element(By.ID, "resultElement")\n`;
+                stepsCode += `        self.assertTrue(element.is_displayed())\n`;
+            } else {
+                stepsCode += `        # TODO: Implement step: ${step}\n`;
+            }
+            
+            stepsCode += '\n';
+        });
+        
+        let assertCode = '';
+        expectedResults.forEach((result, index) => {
+            assertCode += `        # Validation ${index + 1}: ${result}\n`;
+            assertCode += `        self.assertTrue(self.driver.find_element(By.ID, "resultElement").is_displayed())\n\n`;
+        });
+        
+        return `import unittest
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+class ${className}(unittest.TestCase):
+    """
+    ${scenarioTitle}
+    Test: ${testTitle}
+    """
+    
+    def setUp(self):
+        self.driver = webdriver.Chrome("path/to/chromedriver")
+        self.driver.maximize_window()
+        self.driver.get("https://example.com")
+    
+    def ${methodName}(self):
+${stepsCode}
+        # Verify expected results
+${assertCode}
+    def tearDown(self):
+        if self.driver:
+            self.driver.quit()
+
+if __name__ == "__main__":
+    unittest.main()`;
+    }
+    
+    /**
+     * Generates Cypress code
+     */
+    function generateCypress(scenarioTitle, testTitle, steps, expectedResults) {
+        let stepsCode = '';
+        steps.forEach((step, index) => {
+            stepsCode += `    // Step ${index + 1}: ${step}\n`;
+            
+            // Generate some example code based on the step text
+            if (step.toLowerCase().includes('giriş') || step.toLowerCase().includes('login')) {
+                stepsCode += `    cy.get('#username').type('testuser')\n`;
+                stepsCode += `    cy.get('#password').type('password')\n`;
+                stepsCode += `    cy.get('#loginButton').click()\n`;
+            } else if (step.toLowerCase().includes('tıkla') || step.toLowerCase().includes('click')) {
+                stepsCode += `    cy.contains('Button').click()\n`;
+            } else if (step.toLowerCase().includes('kontrol') || step.toLowerCase().includes('verify')) {
+                stepsCode += `    cy.get('#resultElement').should('be.visible')\n`;
+            } else {
+                stepsCode += `    // TODO: Implement step: ${step}\n`;
+            }
+            
+            stepsCode += '\n';
+        });
+        
+        let assertCode = '';
+        expectedResults.forEach((result, index) => {
+            assertCode += `    // Validation ${index + 1}: ${result}\n`;
+            assertCode += `    cy.get('#resultElement').should('be.visible')\n\n`;
+        });
+        
+        return `describe('${scenarioTitle}', () => {
+  it('${testTitle}', () => {
+    cy.visit('https://example.com')
+    
+${stepsCode}
+    // Verify expected results
+${assertCode}  })
+})`;
+    }
+    
+    /**
+     * Generates Playwright code
+     */
+    function generatePlaywright(scenarioTitle, testTitle, steps, expectedResults) {
+        let stepsCode = '';
+        steps.forEach((step, index) => {
+            stepsCode += `  // Step ${index + 1}: ${step}\n`;
+            
+            // Generate some example code based on the step text
+            if (step.toLowerCase().includes('giriş') || step.toLowerCase().includes('login')) {
+                stepsCode += `  await page.fill('#username', 'testuser');\n`;
+                stepsCode += `  await page.fill('#password', 'password');\n`;
+                stepsCode += `  await page.click('#loginButton');\n`;
+            } else if (step.toLowerCase().includes('tıkla') || step.toLowerCase().includes('click')) {
+                stepsCode += `  await page.click('text=Button');\n`;
+            } else if (step.toLowerCase().includes('kontrol') || step.toLowerCase().includes('verify')) {
+                stepsCode += `  await expect(page.locator('#resultElement')).toBeVisible();\n`;
+            } else {
+                stepsCode += `  // TODO: Implement step: ${step}\n`;
+            }
+            
+            stepsCode += '\n';
+        });
+        
+        let assertCode = '';
+        expectedResults.forEach((result, index) => {
+            assertCode += `  // Validation ${index + 1}: ${result}\n`;
+            assertCode += `  await expect(page.locator('#resultElement')).toBeVisible();\n\n`;
+        });
+        
+        return `import { test, expect } from '@playwright/test';
+
+test('${scenarioTitle} - ${testTitle}', async ({ page }) => {
+  await page.goto('https://example.com');
+  
+${stepsCode}
+  // Verify expected results
+${assertCode}});`;
+    }
+    
+    /**
+     * Generates Appium code
+     */
+    function generateAppium(scenarioTitle, testTitle, steps, expectedResults) {
+        let stepsCode = '';
+        steps.forEach((step, index) => {
+            stepsCode += `        // Step ${index + 1}: ${step}\n`;
+            
+            // Generate some example code based on the step text
+            if (step.toLowerCase().includes('giriş') || step.toLowerCase().includes('login')) {
+                stepsCode += `        MobileElement usernameField = (MobileElement) driver.findElementById("username");\n`;
+                stepsCode += `        usernameField.sendKeys("testuser");\n`;
+                stepsCode += `        MobileElement passwordField = (MobileElement) driver.findElementById("password");\n`;
+                stepsCode += `        passwordField.sendKeys("password");\n`;
+                stepsCode += `        MobileElement loginButton = (MobileElement) driver.findElementById("loginButton");\n`;
+                stepsCode += `        loginButton.click();\n`;
+            } else if (step.toLowerCase().includes('tıkla') || step.toLowerCase().includes('click')) {
+                stepsCode += `        MobileElement button = (MobileElement) driver.findElementByXPath("//android.widget.Button[@text='Button']");\n`;
+                stepsCode += `        button.click();\n`;
+            } else if (step.toLowerCase().includes('kontrol') || step.toLowerCase().includes('verify')) {
+                stepsCode += `        MobileElement element = (MobileElement) driver.findElementById("resultElement");\n`;
+                stepsCode += `        Assert.assertTrue("Element should be displayed", element.isDisplayed());\n`;
+            } else {
+                stepsCode += `        // TODO: Implement step: ${step}\n`;
+            }
+            
+            stepsCode += '\n';
+        });
+        
+        let assertCode = '';
+        expectedResults.forEach((result, index) => {
+            assertCode += `        // Validation ${index + 1}: ${result}\n`;
+            assertCode += `        MobileElement element = (MobileElement) driver.findElementById("resultElement");\n`;
+            assertCode += `        Assert.assertTrue("Validation failed: ${result}", element.isDisplayed());\n\n`;
+        });
+        
+        return `import io.appium.java_client.AppiumDriver;
+import io.appium.java_client.MobileElement;
+import io.appium.java_client.android.AndroidDriver;
+import io.appium.java_client.remote.MobileCapabilityType;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import java.net.URL;
+import org.junit.Assert;
+
+/**
+ * ${scenarioTitle}
+ * Test: ${testTitle}
+ */
+public class AppiumTest {
+    private AppiumDriver<MobileElement> driver;
+    
+    @Before
+    public void setUp() throws Exception {
+        DesiredCapabilities capabilities = new DesiredCapabilities();
+        capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "Android");
+        capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, "Android Emulator");
+        capabilities.setCapability(MobileCapabilityType.APP, "/path/to/your/app.apk");
+        
+        URL url = new URL("http://127.0.0.1:4723/wd/hub");
+        driver = new AndroidDriver<>(url, capabilities);
+    }
+    
+    @Test
+    public void testScenario() {
+${stepsCode}
+        // Verify expected results
+${assertCode}    }
+    
+    @After
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+}`;
+    }
+    
+    /**
+     * Generates REST Assured code
+     */
+    function generateRestAssured(scenarioTitle, testTitle, steps, expectedResults) {
+        let stepsCode = '';
+        steps.forEach((step, index) => {
+            stepsCode += `        // Step ${index + 1}: ${step}\n`;
+            
+            // Generate some example code based on the step text
+            if (step.toLowerCase().includes('get') || step.toLowerCase().includes('al')) {
+                stepsCode += `        Response response = RestAssured.given()\n`;
+                stepsCode += `            .header("Content-Type", "application/json")\n`;
+                stepsCode += `            .when()\n`;
+                stepsCode += `            .get("/api/resource")\n`;
+                stepsCode += `            .then()\n`;
+                stepsCode += `            .statusCode(200)\n`;
+                stepsCode += `            .extract().response();\n`;
+            } else if (step.toLowerCase().includes('post') || step.toLowerCase().includes('gönder')) {
+                stepsCode += `        String requestBody = "{\\"name\\":\\"Test\\",\\"email\\":\\"test@example.com\\"}";\n`;
+                stepsCode += `        Response response = RestAssured.given()\n`;
+                stepsCode += `            .header("Content-Type", "application/json")\n`;
+                stepsCode += `            .body(requestBody)\n`;
+                stepsCode += `            .when()\n`;
+                stepsCode += `            .post("/api/resource")\n`;
+                stepsCode += `            .then()\n`;
+                stepsCode += `            .statusCode(201)\n`;
+                stepsCode += `            .extract().response();\n`;
+            } else if (step.toLowerCase().includes('kontrol') || step.toLowerCase().includes('verify')) {
+                stepsCode += `        // Validate response\n`;
+                stepsCode += `        JsonPath jsonPath = response.jsonPath();\n`;
+                stepsCode += `        Assert.assertEquals("Expected value", jsonPath.get("field"));\n`;
+            } else {
+                stepsCode += `        // TODO: Implement step: ${step}\n`;
+            }
+            
+            stepsCode += '\n';
+        });
+        
+        let assertCode = '';
+        expectedResults.forEach((result, index) => {
+            assertCode += `        // Validation ${index + 1}: ${result}\n`;
+            assertCode += `        Assert.assertTrue("Validation failed: ${result}", response.getStatusCode() == 200);\n`;
+            assertCode += `        JsonPath jsonPath = response.jsonPath();\n`;
+            assertCode += `        Assert.assertNotNull("Response should have data", jsonPath.get("data"));\n\n`;
+        });
+        
+        return `import io.restassured.RestAssured;
+import io.restassured.path.json.JsonPath;
+import io.restassured.response.Response;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.Assert;
+
+/**
+ * ${scenarioTitle}
+ * Test: ${testTitle}
+ */
+public class ApiTest {
+    
+    @Before
+    public void setUp() {
+        RestAssured.baseURI = "https://api.example.com";
+    }
+    
+    @Test
+    public void testApi() {
+${stepsCode}
+        // Verify expected results
+${assertCode}    }
+}`;
+    }
+    
+    /**
+     * Generates Cucumber Gherkin code
+     */
+    function generateCucumber(scenarioTitle, testTitle, steps, expectedResults) {
+        let stepsCode = '';
+        steps.forEach((step) => {
+            // Convert step to Gherkin format
+            let gherkinStep = '';
+            
+            if (step.toLowerCase().includes('giriş') || step.toLowerCase().includes('login')) {
+                gherkinStep = 'When I enter username "testuser" and password "password"';
+            } else if (step.toLowerCase().includes('tıkla') || step.toLowerCase().includes('click')) {
+                gherkinStep = 'And I click on the "Button" button';
+            } else if (step.toLowerCase().includes('kontrol') || step.toLowerCase().includes('verify')) {
+                gherkinStep = 'Then I should see the result element';
+            } else {
+                // Default formatting for other steps
+                gherkinStep = `Given ${step}`;
+            }
+            
+            stepsCode += `  ${gherkinStep}\n`;
+        });
+        
+        let assertCode = '';
+        expectedResults.forEach((result) => {
+            assertCode += `  Then ${result}\n`;
+        });
+        
+        return `Feature: ${scenarioTitle}
+
+Scenario: ${testTitle}
+  Given I am on the application homepage
+${stepsCode}
+  # Expected Results
+${assertCode}`;
+    }
+}

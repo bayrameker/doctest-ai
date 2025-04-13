@@ -1,0 +1,63 @@
+{
+    "api_keys": {
+        "openai": "",
+        "azure_openai": "API-KEY"
+    },
+    "endpoints": {
+        "azure_openai": "https://api-url.openai.azure.com/",
+        "azure_region": "eastus"
+    },
+    "models": {
+        "azure": [
+            {
+                "name": "gpt-4",
+                "param": "max_tokens",
+                "version": "2024-08-01-preview"
+            },
+            {
+                "name": "gpt-4o",
+                "param": "max_tokens",
+                "version": "2024-08-01-preview"
+            },
+            {
+                "name": "gpt-4o-mini",
+                "param": "max_tokens",
+                "version": "2024-08-01-preview"
+            },
+            {
+                "name": "api-url-o1",
+                "param": "max_completion_tokens",
+                "version": "2024-12-01-preview"
+            }
+        ],
+        "openai": [
+            {
+                "name": "gpt-4o",
+                "param": "max_tokens"
+            },
+            {
+                "name": "gpt-4",
+                "param": "max_tokens"
+            }
+        ]
+    },
+    "defaults": {
+        "model": "gpt-4o",
+        "service": "azure_openai",
+        "max_tokens": 4000,
+        "temperature": 0.7,
+        "show_extracted_images": true,
+        "advanced_document_analysis": true
+    },
+    "ui": {
+        "theme": "dark",
+        "language": "tr",
+        "notification_level": "info"
+    },
+    "features": {
+        "neuraagent_basic_enabled": true,
+        "advanced_document_parsing": true,
+        "image_recognition": true,
+        "table_extraction": true
+    }
+}

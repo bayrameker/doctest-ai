@@ -1,0 +1,81 @@
+/* ================================
+   STATS CARDS STYLES
+   ================================ */
+
+/* Floating stats cards */
+.stats-section {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin: -2.5rem auto 2rem auto;
+    position: relative;
+    z-index: 20;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, rgba(10, 35, 66, 0.9) 0%, rgba(18, 110, 130, 0.8) 100%);
+    border-radius: 15px;
+    padding: 1.5rem;
+    width: 220px;
+    text-align: center;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.stat-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background: rgba(242, 183, 5, 0.2);
+    border-radius: 50%;
+    margin-bottom: 1rem;
+    color: #f2b705;
+    font-size: 1.5rem;
+    position: relative;
+}
+
+.stat-icon::after {
+    content: "";
+    position: absolute;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    border: 1px dashed rgba(242, 183, 5, 0.5);
+    animation: spin 20s linear infinite;
+}
+
+.stat-number {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.3rem;
+    font-family: 'Outfit', sans-serif;
+}
+
+.stat-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    font-weight: 400;
+}
+
+/* Responsive style for stats section */
+@media (max-width: 768px) {
+    .stats-section {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .stat-card {
+        width: 90%;
+        margin-bottom: 1rem;
+    }
+}

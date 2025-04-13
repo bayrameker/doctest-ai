@@ -1,0 +1,536 @@
+/* ================================
+   RESULTS PAGE STYLES
+   ================================ */
+
+/* Üst başlık bölümü */
+.api-heading {
+    position: relative;
+    display: inline-block;
+    color: var(--api-light);
+    font-weight: 600;
+    padding-bottom: 10px;
+    margin-bottom: 5px;
+}
+
+.api-heading:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--api-gold), var(--api-accent));
+    border-radius: 2px;
+}
+
+.api-heading i {
+    background: linear-gradient(135deg, var(--api-secondary) 0%, var(--api-accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
+
+/* Özet bilgi kartı */
+.summary-content {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: var(--api-light);
+    padding: 10px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.summary-content:hover {
+    background-color: rgba(18, 110, 130, 0.1);
+}
+
+/* AI model rozeti */
+.ai-model-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 12px 20px;
+    background: linear-gradient(135deg,
+            rgba(18, 110, 130, 0.3) 0%,
+            rgba(10, 35, 66, 0.3) 100%);
+    border: 1px solid rgba(18, 110, 130, 0.5);
+    border-radius: 12px;
+    color: var(--api-light);
+    font-weight: 600;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    position: relative;
+    overflow: hidden;
+}
+
+.ai-model-badge:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg,
+            rgba(18, 110, 130, 0.3) 0%,
+            rgba(242, 183, 5, 0.1) 50%,
+            rgba(18, 110, 130, 0.3) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.ai-model-badge:hover:before {
+    opacity: 1;
+}
+
+.ai-model-badge i {
+    font-size: 1.8rem;
+    color: var(--api-gold);
+    margin-right: 10px;
+}
+
+.ai-model-badge span {
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+}
+
+/* Luxury alert stillemeleri */
+.luxury-alert {
+    border: none;
+    background: linear-gradient(145deg,
+            rgba(18, 21, 30, 0.9) 0%,
+            rgba(12, 30, 53, 0.85) 100%);
+    border-radius: 10px;
+    overflow: hidden;
+    padding: 16px 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+
+.luxury-alert:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--api-info);
+}
+
+.luxury-alert-info:before {
+    background: var(--api-secondary);
+}
+
+.luxury-alert-warning:before {
+    background: var(--api-warning);
+}
+
+.luxury-alert-danger:before {
+    background: var(--api-danger);
+}
+
+.luxury-alert .alert-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,
+            rgba(18, 110, 130, 0.2) 0%,
+            rgba(10, 35, 66, 0.2) 100%);
+    border: 1px solid rgba(18, 110, 130, 0.3);
+    font-size: 1.25rem;
+    color: var(--api-gold);
+    flex-shrink: 0;
+}
+
+.luxury-alert .alert-heading {
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: var(--api-light);
+}
+
+/* Editable content stillemeleri */
+.editable {
+    position: relative;
+    padding: 12px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    background-color: rgba(18, 21, 30, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.editable:hover {
+    background-color: rgba(18, 110, 130, 0.1);
+    border: 1px solid rgba(18, 110, 130, 0.2);
+}
+
+.editable:focus {
+    outline: none;
+    background-color: rgba(18, 110, 130, 0.15);
+    border: 1px solid rgba(18, 110, 130, 0.3);
+    box-shadow: 0 0 0 0.25rem rgba(18, 110, 130, 0.15);
+}
+
+.editable:after {
+    content: "\f044";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 6px;
+    background-color: rgba(18, 110, 130, 0.2);
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: var(--api-light);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.editable:hover:after {
+    opacity: 0.8;
+}
+
+/* Sekmeler */
+.nav-tabs {
+    border-bottom: 1px solid rgba(18, 110, 130, 0.3);
+    background: linear-gradient(90deg,
+            rgba(12, 30, 53, 0.8) 0%,
+            rgba(18, 21, 30, 0.5) 100%);
+    border-radius: 10px 10px 0 0;
+    padding: 5px 5px 0;
+}
+
+.nav-tabs .nav-link {
+    color: var(--api-silver);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 8px 8px 0 0;
+    padding: 10px 18px;
+    font-weight: 500;
+    margin-right: 5px;
+    transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--api-light);
+    background-color: rgba(18, 110, 130, 0.1);
+    border-bottom: 2px solid rgba(242, 183, 5, 0.4);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--api-light);
+    background: linear-gradient(180deg,
+            rgba(18, 110, 130, 0.2) 0%,
+            rgba(18, 21, 30, 0.8) 100%);
+    border: 1px solid rgba(18, 110, 130, 0.3);
+    border-bottom: 2px solid var(--api-gold);
+}
+
+.nav-tabs .nav-link i {
+    color: var(--api-gold);
+}
+
+/* Test Accordion Stillemeleri */
+.scenario-accordion .accordion-item {
+    background: linear-gradient(145deg,
+            rgba(18, 21, 30, 0.95) 0%,
+            rgba(12, 30, 53, 0.9) 100%);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.scenario-accordion .accordion-item:hover {
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+.scenario-accordion .accordion-button {
+    background: linear-gradient(90deg,
+            rgba(12, 30, 53, 0.9) 0%,
+            rgba(18, 21, 30, 0.8) 100%);
+    border: none;
+    color: var(--api-light);
+    font-weight: 500;
+    padding: 15px 20px;
+}
+
+.scenario-accordion .accordion-button:not(.collapsed) {
+    background: linear-gradient(90deg,
+            rgba(18, 110, 130, 0.2) 0%,
+            rgba(18, 21, 30, 0.8) 100%);
+    color: var(--api-light);
+    box-shadow: 0 0 8px rgba(18, 110, 130, 0.2);
+    border-bottom: 1px solid rgba(242, 183, 5, 0.2);
+}
+
+.scenario-accordion .accordion-button:not(.collapsed)::after {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23f2b705'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+}
+
+.scenario-accordion .accordion-button::after {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23f2b705'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+}
+
+.scenario-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,
+            rgba(18, 110, 130, 0.4) 0%,
+            rgba(10, 35, 66, 0.4) 100%);
+    border: 1px solid rgba(18, 110, 130, 0.5);
+    color: var(--api-light);
+    font-weight: 600;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.scenario-title {
+    font-weight: 500;
+    font-size: 1.05rem;
+}
+
+.scenario-subtitle {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--api-light);
+    padding-bottom: 8px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.scenario-subtitle i {
+    color: var(--api-gold);
+}
+
+.scenario-accordion .accordion-body {
+    background-color: rgba(18, 21, 30, 0.6);
+    padding: 20px;
+}
+
+/* Test Durumları Stillemeleri */
+.test-cases-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
+    gap: 15px;
+}
+
+.test-case-card {
+    background: linear-gradient(145deg,
+            rgba(12, 30, 53, 0.7) 0%,
+            rgba(18, 21, 30, 0.6) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.test-case-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(18, 110, 130, 0.3);
+}
+
+.test-case-header {
+    background: linear-gradient(90deg,
+            rgba(18, 110, 130, 0.15) 0%,
+            rgba(18, 21, 30, 0.6) 100%);
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.test-case-title {
+    margin: 0;
+    font-weight: 500;
+    color: var(--api-light);
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+}
+
+.test-case-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg,
+            rgba(18, 110, 130, 0.3) 0%,
+            rgba(10, 35, 66, 0.3) 100%);
+    border: 1px solid rgba(18, 110, 130, 0.4);
+    color: var(--api-light);
+    font-weight: 600;
+    font-size: 0.8rem;
+    margin-right: 10px;
+}
+
+.test-case-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.test-case-content {
+    padding: 15px;
+}
+
+.test-step-section {
+    margin-bottom: 15px;
+}
+
+.test-step-section:last-child {
+    margin-bottom: 0;
+}
+
+.test-step-label {
+    font-weight: 500;
+    color: var(--api-secondary);
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.test-step-content {
+    color: var(--api-light);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+/* Playground ve Otomasyon Sekmeleri */
+.playground-section h6,
+.automation-section h6 {
+    font-weight: 500;
+    color: var(--api-secondary);
+}
+
+.code-editor-area {
+    position: relative;
+    background: rgba(12, 30, 53, 0.6);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.2);
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+/* Orijinal doküman içeriği */
+.document-text {
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 15px;
+    background: rgba(18, 21, 30, 0.7);
+}
+
+.document-content {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.9rem;
+    color: var(--api-light);
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    overflow-wrap: break-word;
+    white-space: pre-wrap;
+}
+
+/* Otomasyon sonuç kodu alanı */
+.automation-code-container {
+    max-height: 400px;
+    overflow-y: auto;
+    background: rgba(12, 30, 53, 0.6);
+    border-radius: 6px;
+    box-shadow: inset 0 1px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Duyarlı tasarım */
+@media (min-width: 992px) {
+    .test-cases-container {
+        grid-template-columns: repeat(auto-fill, minmax(48%, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .ai-model-badge {
+        padding: 10px 15px;
+    }
+
+    .ai-model-badge i {
+        font-size: 1.5rem;
+    }
+
+    .ai-model-badge span {
+        font-size: 1rem;
+    }
+
+    .scenario-accordion .accordion-button {
+        padding: 12px 15px;
+    }
+
+    .test-case-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .test-case-badges {
+        margin-top: 8px;
+    }
+}
+
+/* Gelişmiş kart başlıkları */
+.card-header {
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+}
+
+.card-header h5 {
+    font-weight: 500;
+    font-size: 1.1rem;
+    margin-bottom: 0;
+}
+
+.card-header i {
+    color: var(--api-gold);
+    margin-right: 10px;
+    font-size: 1.1rem;
+}
+
+/* Animasyonlu expand/collapse ikon */
+#documentHeaderToggle [class*="fa-chevron"] {
+    transition: transform 0.3s ease;
+}
+
+#documentHeaderToggle[aria-expanded="true"] [class*="fa-chevron"] {
+    transform: rotate(180deg);
+}
+
+/* Arkaplan desenleri için gelişmiş efektler */
+.luxury-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.luxury-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, rgba(242, 183, 5, 0.1) 0%, rgba(18, 21, 30, 0) 70%);
+    opacity: 0.2;
+    z-index: 0;
+    pointer-events: none;
+}

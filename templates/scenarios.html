@@ -1,0 +1,249 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Başlık Alanı - Animasyonlu Giriş -->
+    <div class="d-flex justify-content-between align-items-center mb-4 fadeInUp">
+        <h2 class="section-title">Test Senaryoları</h2>
+        <div>
+            <a href="{{ url_for('index') }}" class="btn btn-create-scenario">
+                <i class="fas fa-plus-circle"></i>Yeni Senaryo Oluştur
+            </a>
+        </div>
+    </div>
+
+    <!-- Filtreleme ve Arama - Gelişmiş UI -->
+    <div class="card filter-card mb-4 fadeInUp" style="animation-delay: 0.1s">
+        <div class="card-header d-flex align-items-center">
+            <i class="fas fa-filter me-2"></i>
+            <h5 class="mb-0">Filtrele ve Ara</h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="documentSearch" placeholder="Belge adına göre ara">
+                        <label for="documentSearch">Belge adına göre ara</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <select class="form-select" id="categoryFilter">
+                            <option value="">Tümü</option>
+                            <option value="Functional">Fonksiyonel</option>
+                            <option value="UI">Arayüz (UI)</option>
+                            <option value="Integration">Entegrasyon</option>
+                            <option value="Performance">Performans</option>
+                        </select>
+                        <label for="categoryFilter">Kategori</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <select class="form-select" id="priorityFilter">
+                            <option value="">Tümü</option>
+                            <option value="High">Yüksek</option>
+                            <option value="Medium">Orta</option>
+                            <option value="Low">Düşük</option>
+                        </select>
+                        <label for="priorityFilter">Öncelik</label>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-search w-100 h-100">
+                        <i class="fas fa-search me-2"></i>Ara
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Senaryo Listesi - Gelişmiş Görsel Tasarım -->
+    <div class="card scenario-card fadeInUp" style="animation-delay: 0.2s">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-clipboard-list me-2"></i>
+                <h5 class="mb-0">Senaryo Listesi</h5>
+            </div>
+            <span class="text-muted small">
+                {% if scenario_sets %}
+                    Toplam {{ scenario_sets|length }} senaryo seti
+                {% endif %}
+            </span>
+        </div>
+        <div class="card-body p-0">
+            {% if scenario_sets %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col" width="5%">#</th>
+                            <th scope="col" width="25%">Belge</th>
+                            <th scope="col" width="15%">Tarih</th>
+                            <th scope="col" width="10%">AI Model</th>
+                            <th scope="col" width="10%">Senaryolar</th>
+                            <th scope="col" width="15%">Test Durumları</th>
+                            <th scope="col" width="20%" class="text-center">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scenarioTable">
+                        {% for scenario_set in scenario_sets %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>
+                                {% if scenario_set.document %}
+                                    <span class="doc-title" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ scenario_set.document.filename }}">
+                                        <i class="fas fa-file-alt me-1 text-info"></i>
+                                        {{ scenario_set.document.filename }}
+                                    </span>
+                                {% else %}
+                                    <span class="text-muted">
+                                        <i class="fas fa-exclamation-triangle me-1 text-warning"></i>
+                                        Belge bulunamadı
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <i class="far fa-calendar-alt me-1 text-muted"></i>
+                                {{ scenario_set.generated_date.strftime('%d.%m.%Y %H:%M') }}
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ scenario_set.ai_model.upper() }}</span>
+                            </td>
+                            <td>
+                                <span class="fw-medium">{{ scenario_set.total_scenarios }}</span>
+                                <span class="text-muted small">senaryo</span>
+                            </td>
+                            <td>
+                                <span class="fw-medium">{{ scenario_set.total_test_cases }}</span>
+                                <span class="text-muted small">test durumu</span>
+                            </td>
+                            <td class="text-center">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a href="{{ url_for('results', id=scenario_set.id) }}" class="btn btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Görüntüle">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ url_for('export_scenarios', id=scenario_set.id, format='json') }}" class="btn btn-outline-success" target="_blank" data-bs-toggle="tooltip" data-bs-placement="top" title="Dışa Aktar">
+                                        <i class="fas fa-file-export"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal" data-id="{{ scenario_set.id }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Sil">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Gelecekte kullanılmak üzere sayfalama alanı (şu anda gizli) -->
+            <div class="scenario-pagination d-none">
+                <nav aria-label="Senaryo sayfaları">
+                    <ul class="pagination">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Önceki</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Sonraki</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+            
+            {% else %}
+            <div class="empty-state fadeInUp">
+                <i class="fas fa-clipboard-list"></i>
+                <h5>Henüz test senaryosu oluşturulmamış</h5>
+                <p>Yeni test senaryoları oluşturmak için aşağıdaki butonu kullanabilirsiniz.</p>
+                <a href="{{ url_for('index') }}" class="btn btn-create-scenario">
+                    <i class="fas fa-plus-circle me-2"></i>Test Senaryosu Oluştur
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Silme İşlemi Onay Modalı - Geliştirilmiş Tasarım -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-confirm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                        Senaryoyu Sil
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">Bu senaryo setini silmek istediğinize emin misiniz? Bu işlem geri alınamaz ve tüm test senaryoları kaldırılacaktır.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>İptal
+                    </button>
+                    <form id="deleteForm" method="POST" action="">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash-alt me-2"></i>Evet, Sil
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tooltip'leri etkinleştir
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+          return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    
+        // Silme modalı işlemi
+        const deleteModal = document.getElementById('deleteModal');
+        deleteModal.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const scenarioId = button.getAttribute('data-id');
+            const deleteForm = document.getElementById('deleteForm');
+            deleteForm.action = "/delete-scenario/" + scenarioId;
+        });
+        
+        // Filtreleme işlemleri
+        const documentSearch = document.getElementById('documentSearch');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const priorityFilter = document.getElementById('priorityFilter');
+        const scenarioTable = document.getElementById('scenarioTable');
+        
+        if (scenarioTable) {
+            const rows = scenarioTable.querySelectorAll('tr');
+            
+            // Belge adı araması
+            documentSearch.addEventListener('keyup', function() {
+                const query = this.value.toLowerCase();
+                
+                rows.forEach(row => {
+                    const docTitle = row.querySelector('.doc-title');
+                    if (docTitle) {
+                        const text = docTitle.textContent.toLowerCase();
+                        row.style.display = text.indexOf(query) > -1 ? '' : 'none';
+                    }
+                });
+            });
+            
+            // Filtreleme butonuna tıklanması - Gelecekte geliştirilebilir
+            document.querySelector('.btn-search').addEventListener('click', function() {
+                // Burada kategori ve öncelik filtrelemeleri eklenebilir
+                console.log('Filtreler: ', 
+                    'Kategori:', categoryFilter.value, 
+                    'Öncelik:', priorityFilter.value
+                );
+            });
+        }
+    });
+</script>
+{% endblock %}

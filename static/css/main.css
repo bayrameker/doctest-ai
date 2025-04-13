@@ -1,0 +1,25 @@
+/* ================================
+   MAIN CSS IMPORTS - MODULAR STRUCTURE
+   ================================ */
+
+/* Import all component styles in proper order */
+@import url('components/base.css');
+@import url('components/animations.css');
+@import url('components/hero.css');
+@import url('components/stats.css');
+@import url('components/cards.css');
+@import url('components/tech-cards.css');
+@import url('components/forms.css');
+@import url('components/modals.css');
+@import url('components/scenarios.css');
+@import url('components/results.css');
+@import url('components/analytics.css');
+
+/* This file acts as the single entry point for all CSS components, 
+   making it modular but still maintaining a single import in HTML.
+   This approach gives us the following benefits:
+   1. Better organization by component
+   2. Easier maintenance when making targeted changes
+   3. More manageable and logical structure
+   4. Maintains the existing HTML import structure with a single file
+*/

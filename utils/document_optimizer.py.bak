@@ -1,0 +1,523 @@
+"""
+Document Optimizer - Dokümanları AI modelleri için optimize etme aracı
+
+Bu modül, dokümanları AI modeline göndermeden önce optimize eder:
+- Belge boyutunu token limitine göre ayarlar
+- Önemli içeriği korur ve önemsiz kısımları keser
+- İçerik yapısını koruyarak daha iyi sonuçlar alınmasını sağlar
+"""
+
+import os
+import re
+import logging
+from typing import Dict, List, Any, Optional, Union
+
+# Configuration
+DEFAULT_MAX_TOKENS = 16000  # OpenAI'nin maksimum token limiti (varsayılan)
+TOKENS_PER_CHAR_RATIO = 4   # Ortalama token/karakter oranı (tahmin)
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+class DocumentOptimizer:
+    """Dokümanları optimize etmek için kullanılan sınıf"""
+    
+    def __init__(self, ai_provider="openai", max_tokens=None, strategy="balanced"):
+        """
+        DocumentOptimizer'ı başlat
+        
+        Args:
+            ai_provider (str): Hangi AI sağlayıcısı için optimize edileceği
+            max_tokens (int, optional): Maksimum token sayısı. None ise, 
+                                         ai_provider'a göre varsayılan değer kullanılır
+            strategy (str): Optimizasyon stratejisi - "aggressive", "balanced", "conservative", "preserve_all"
+        """
+        self.ai_provider = ai_provider
+        self.strategy = strategy
+        
+        # Token limitlerine göre maksimum boyutu belirle
+        provider_limits = {
+            "openai": 16000,       # GPT-4o, GPT-4, vb.
+            "azure": 16000,        # Azure OpenAI Service (gpt-4o-mini için)
+            "azure-o1": 128000,    # Azure Claude modeli için (o1)
+            "azure-gpt4": 8000,    # Azure GPT-4 için
+            "ollama": 12000,       # Model bağımlı
+            "deepseek": 10000,     # DeepSeek modelleri
+            "default": 8000        # Varsayılan değer
+        }
+        
+        self.max_tokens = max_tokens or provider_limits.get(ai_provider.lower(), provider_limits["default"])
+        self.approximate_char_limit = self.max_tokens * TOKENS_PER_CHAR_RATIO
+        
+        # Strateji tabanlı treshold'lar
+        self.thresholds = {
+            "aggressive": 0.85,     # En fazla %85 doldur
+            "balanced": 0.92,       # En fazla %92 doldur
+            "conservative": 0.98,   # En fazla %98 doldur
+            "preserve_all": 1.0,    # Tam belgeyi koru (sınırlara göre)
+        }
+        
+        # Kullanılacak treshold
+        self.active_threshold = self.thresholds.get(strategy, self.thresholds["balanced"])
+        self.max_char_limit = int(self.approximate_char_limit * self.active_threshold)
+        
+        logger.info(f"DocumentOptimizer başlatıldı. AI Provider: {ai_provider}, Max Tokens: {self.max_tokens}")
+        logger.info(f"Optimizasyon stratejisi: {strategy}, Karakter limiti: ~{self.max_char_limit}")
+    
+    def optimize(self, document_text: str, document_structure: Optional[Dict] = None) -> str:
+        """
+        Dokümanı optimize et
+        
+        Args:
+            document_text (str): Optimize edilecek doküman metni
+            document_structure (dict, optional): Doküman yapısı (varsa)
+            
+        Returns:
+            str: Optimize edilmiş doküman metni
+        """
+        # Kullanıcı tam koruma istiyorsa doğrudan tam içeriği koru
+        if self.strategy == "preserve_all":
+            return self._preserve_full_document(document_text)
+            
+        # Doküman zaten limit içindeyse optimizasyona gerek yok
+        if len(document_text) <= self.max_char_limit:
+            return document_text
+        
+        logger.info(f"Doküman optimizasyon başlatılıyor. Orijinal boyut: {len(document_text)} karakter")
+        
+        # Doküman yapısı yoksa basit kırpma kullan
+        if not document_structure or not document_structure.get("sections"):
+            return self._preserve_full_document(document_text)
+        
+        # Metni güvenli bir şekilde işle ve doğru biçimde iade et
+        try:
+            optimized_text = self._structured_optimize(document_text, document_structure)
+            
+            # Son bir güvenlik kontrolü - eğer optimizasyon çok agresif olduysa
+            # Kullanıcı dokümanın %100 oranında işlenmesini istediği için orijinal metni koruyacak şekilde ayarlandı
+            if len(optimized_text) < len(document_text) * 0.90:  # Minimum %90 oranında içerik korumalıyız
+                logger.warning(f"Çok agresif optimizasyon tespit edildi: {len(optimized_text)} / {len(document_text)} karakter")
+                # Doğrudan en güvenli koruma yöntemini kullan - kullanıcı maksimum içerik işlenmesini istiyor
+                logger.info("Dokümanın tamamını koruma modu aktifleştirildi (%100 içerik koruması)...")
+                return self._preserve_full_document(document_text)
+            
+            return optimized_text
+        except Exception as e:
+            logger.error(f"Yapısal optimizasyon hatası: {e}, yedek kırpmaya dönülüyor")
+            return self._preserve_full_document(document_text)
+    
+    def _preserve_full_document(self, text: str) -> str:
+        """
+        Belgenin tamamını koruyacak şekilde optimize eder. 
+        Metni model limitlerini zorlayacak şekilde en verimli biçimde optimize eder.
+        
+        Args:
+            text (str): Orijinal belge metni
+            
+        Returns:
+            str: Optimize edilmiş ama maksimum içeriği koruyan metin
+        """
+        # Belge boyutu kontrolü
+        if not text:
+            logger.warning("Boş belge")
+            return ""
+            
+        # Azure API sınırları nedeniyle karakter sınırını azalttık
+        # Azure OpenAI en fazla 1048576 karakter kabul ediyor (hata mesajına göre)
+        # Görünen o ki Azure'un limiti 1048576 karakter, ancak güvenli olmak için 
+        # limitin yaklaşık %40'ını kullanacağız
+        MAX_SAFE_CHAR_LIMIT = min(len(text), 400000)  # Azure'un kabul edeceği çok daha güvenli sınır
+        
+        try:
+            # Belgede yeterli alan varsa doğrudan döndür
+            if len(text) <= MAX_SAFE_CHAR_LIMIT:
+                logger.info(f"Belge tamamen korundu. Boyut: {len(text)} karakter")
+                return text
+            
+            # Doküman çok büyükse Azure için çok daha güvenli bir boyuta kırpalım
+            # Azure OpenAI'nin sınırını göz önünde bulundurarak çok daha güvenli bir sınır seçelim
+            
+            # Azure için daha güvenli sınır - son testlere göre sınırı düşürdük
+            AZURE_SAFE_LIMIT = 350000  # Azure için güvenli sınır, hatalardan kaçınmak için daha da azalttık
+            
+            # Belge hakkında özet bilgi - AI modelinin işlemi anlamasına yardımcı olacak
+            document_info = f"""
+## BELGE BİLGİSİ
+Bu belgenin orijinal boyutu {len(text)} karakter olup, Azure API limitlerini (1.048.576 karakter) aşma riski taşımaktadır.
+Bu nedenle belgenin ilk {AZURE_SAFE_LIMIT} karakteri alınmıştır.
+
+Bu belge kesinti olmadan en üstten itibaren işlenmiştir. Belgenin tam başı korunmuştur.
+Belge yapısı korunarak, içeriğin işlenebilir bir alt kümesi oluşturulmuştur.
+
+Orijinal belge boyutu: {len(text)} karakter
+İşlenen belge boyutu: {AZURE_SAFE_LIMIT} karakter
+İşlenen oran: %{round((AZURE_SAFE_LIMIT / len(text)) * 100, 1)}
+"""
+            
+            # Belgeyi kırp ve bilgi ekle
+            truncated_content = text[:AZURE_SAFE_LIMIT-len(document_info)-100]
+            result = document_info + truncated_content
+            
+            # Kırpıldı bilgisi ekle
+            result += "\n\n... (belge boyutu nedeniyle kalan kısım kırpıldı)"
+            
+            logger.warning(f"Belge çok büyük ({len(text)} karakter). Azure için güvenli karakter sınırı olan {AZURE_SAFE_LIMIT} karaktere kırpıldı.")
+            logger.info(f"Belge maksimum korumayla optimize edildi. Yeni boyut: {len(result)} karakter")
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Belge koruma işlemi sırasında hata: {str(e)}")
+            # Hata durumunda en güvenli kırpma
+            safe_limit = 300000  # Çok daha güvenli bir limit
+            return text[:safe_limit] + "\n\n... (işleme hatası nedeniyle kırpıldı)"
+    
+    def _simple_truncate(self, text: str) -> str:
+        """Basit kırpma stratejisi, içerik dağılımını daha iyi koruyacak şekilde iyileştirildi"""
+        # Bu fonksiyonu artık kullanmıyoruz, direkt tam koruma kullanıyoruz
+        return self._preserve_full_document(text)
+        
+    def _structured_optimize(self, text: str, structure: Dict) -> str:
+        """
+        Dokümanı yapısını koruyarak akıllıca optimize et
+        
+        Args:
+            text (str): Orijinal metin
+            structure (dict): Doküman yapısı
+            
+        Returns:
+            str: Optimize edilmiş metin
+        """
+        # Bu fonksiyonu artık kullanmıyoruz, direkt tam koruma kullanıyoruz
+        return self._preserve_full_document(text)
+
+# Global optimizer instance (singleton)
+_document_optimizer = None
+
+def get_document_optimizer(ai_provider="openai", max_tokens=None, strategy="preserve_all"):
+    """
+    Doküman optimizer'ı getir veya oluştur (singleton)
+    
+    Args:
+        ai_provider (str): AI sağlayıcısı
+        max_tokens (int, optional): Maksimum token sayısı
+        strategy (str): Optimizasyon stratejisi
+        
+    Returns:
+        DocumentOptimizer: Doküman optimize edici
+    """
+    global _document_optimizer
+    
+    # Her zaman yeni bir optimizer oluştur - stratejiler farklı olabilir
+    _document_optimizer = DocumentOptimizer(
+        ai_provider=ai_provider,
+        max_tokens=max_tokens,
+        strategy=strategy
+    )
+    
+    return _document_optimizer
+
+def optimize_document_for_ai(document_text, document_structure=None, ai_provider="openai", 
+                           max_tokens=None, strategy="preserve_all"):
+    """
+    Dokümanı AI işleme için optimize et
+    
+    Args:
+        document_text (str): Doküman metni
+        document_structure (dict, optional): Doküman yapısı
+        ai_provider (str): AI sağlayıcısı adı
+        max_tokens (int, optional): Maksimum token sayısı
+        strategy (str): Optimizasyon stratejisi
+        
+    Returns:
+        dict: Optimize edilmiş doküman içeriği ve yapısı
+    """
+    try:
+        # Belge boyutu için güvenlik kontrolü
+        if not document_text:
+            logger.warning("Belge metni boş, boş bir belge döndürülüyor")
+            return {
+                "text": "",
+                "truncated": False,
+                "original_size": 0,
+                "optimized_size": 0,
+                "ai_provider": ai_provider,
+                "structure": document_structure,
+                "is_neuraagent_optimized": True,
+                "error": "Boş belge"
+            }
+            
+        # Belge boyutu için güvenlik kontrolü
+        document_size = len(document_text)
+        logger.info(f"Belge boyutu: {document_size} karakter, AI sağlayıcı: {ai_provider}")
+        
+        # Azure için özel karakter limiti kontrolü ve otomatik bölme - sınır düşürüldü
+        if ai_provider == "azure" and document_text and document_size > 800000:  # Güvenlik için sınırı düşürdük
+            # Belgeyi bölme stratejimizi uygula - agresif boyut kontrolü ekledik
+            logger.info(f"Büyük belge tespit edildi ({document_size} karakter), Azure için otomatik bölme yapılıyor")
+            logger.warning(f"Azure'un maksimum karakter limiti 1048576 - belge boyutu {document_size} karakter")
+            
+            # Çok büyük belgeler için daha agresif önlemler
+            if document_size > 3000000:  # 3M+ karakter için özel işlem
+                logger.warning(f"Çok büyük belge tespit edildi ({document_size} karakter > 3M). Özel işlem uygulanıyor.")
+                
+                # Çok büyük belgelerde içeriği daha küçük tutmak için
+                max_safe_size = min(document_size, 4000000)  # Maksimum 4M karakter ile sınırla
+                document_text = document_text[:max_safe_size]
+                logger.info(f"Belge {max_safe_size} karaktere kırpıldı: Yeni boyut {len(document_text)}")
+                
+                # Çok büyük belgede daha agresif ayarlarla bölme işlemi uygula
+                return split_large_document_for_azure(document_text, document_structure)
+            
+            # Normal büyük belge işleme
+            return split_large_document_for_azure(document_text, document_structure)
+        
+        # Standart optimizasyon işlemi
+        optimizer = get_document_optimizer(ai_provider, max_tokens, strategy)
+        optimized_text = optimizer.optimize(document_text, document_structure)
+        
+        # Son kontrol - Azure için çok büyükse yine de bölme işlemi uygula
+        if ai_provider == "azure" and len(optimized_text) > 900000:
+            logger.warning(f"Optimize edilmiş belge hala çok büyük ({len(optimized_text)} karakter). Bölme işlemi uygulanacak.")
+            return split_large_document_for_azure(optimized_text, document_structure)
+        
+        # Optimize edilmiş metni ve diğer bilgileri içeren bir yapı dön
+        return {
+            "text": optimized_text,
+            "truncated": len(optimized_text) < document_size,
+            "original_size": document_size,
+            "optimized_size": len(optimized_text),
+            "ai_provider": ai_provider,
+            "structure": document_structure,
+            "is_neuraagent_optimized": True
+        }
+        
+    except Exception as e:
+        # Hata durumunda güvenli bir şekilde kurtarma yap
+        logger.error(f"Belge optimizasyon hatası: {str(e)}")
+        try:
+            # Eğer belge mevcutsa, en güvenli versiyonu döndür
+            if document_text and len(document_text) > 0:
+                safe_text = document_text[:500000]  # En güvenli limit
+                logger.info(f"Hata sonrası belge güvenli boyuta ({len(safe_text)} karakter) kırpıldı")
+                return {
+                    "text": safe_text,
+                    "truncated": True,
+                    "original_size": len(document_text) if document_text else 0,
+                    "optimized_size": len(safe_text),
+                    "ai_provider": ai_provider,
+                    "structure": document_structure,
+                    "is_neuraagent_optimized": True,
+                    "error": f"Optimizasyon hatası: {str(e)}"
+                }
+            else:
+                # Belge yoksa boş döndür
+                return {
+                    "text": "",
+                    "truncated": False,
+                    "original_size": 0,
+                    "optimized_size": 0,
+                    "ai_provider": ai_provider,
+                    "structure": document_structure,
+                    "is_neuraagent_optimized": True,
+                    "error": f"Boş belge veya optimizasyon hatası: {str(e)}"
+                }
+        except Exception as inner_e:
+            # Son çare - tüm hatalar için
+            logger.critical(f"Kritik belge optimizasyon hatası: {str(inner_e)}")
+            return {
+                "text": "Belge işleme sırasında kritik hata oluştu. Lütfen daha küçük bir belge ile tekrar deneyin.",
+                "truncated": True,
+                "original_size": 0,
+                "optimized_size": 0,
+                "ai_provider": ai_provider,
+                "structure": None,
+                "is_neuraagent_optimized": False,
+                "error": f"Kritik hata: {str(e)}, {str(inner_e)}"
+            }
+
+def split_large_document_for_azure(document_text, document_structure=None):
+    """
+    Büyük belgeleri Azure API limitlerine uygun şekilde böler ve optimize eder.
+    Belgeyi mantıklı bölümlere ayırır ve belgenin en önemli kısımlarının
+    işlenmesini sağlar.
+    
+    Args:
+        document_text (str): Orijinal belge metni
+        document_structure (dict, optional): Belge yapısı
+        
+    Returns:
+        dict: Bölünmüş ve optimize edilmiş belge içeriği
+    """
+    logger.info(f"Büyük belge bölme işlemi başlatıldı. Belge boyutu: {len(document_text)} karakter")
+    
+    # Azure API'nin maksimum karakter limiti - çok daha güvenli bir değer
+    AZURE_CHAR_LIMIT = 500000  # 1.048.576 limitinin çok altında daha güvenli bir değer
+    # Birçok büyük belgede sorun yaşandığı için limite büyük bir güvenlik payı bıraktık
+    
+    # Eğer belge zaten limitin altındaysa direkt döndür
+    if len(document_text) <= AZURE_CHAR_LIMIT:
+        logger.info("Belge zaten Azure limitleri içinde, bölme işlemine gerek yok.")
+        return {
+            "text": document_text,
+            "truncated": False,
+            "original_size": len(document_text),
+            "optimized_size": len(document_text),
+            "ai_provider": "azure",
+            "structure": document_structure,
+            "is_neuraagent_optimized": True
+        }
+    
+    # Belgeyi bölümlere ayır - başlıklar, paragraflar, boş satırlar gibi mantıklı kısımlardan böl
+    sections = []
+    current_section = ""
+    
+    # Bölme işlemi için basit bir algoritma: Boş satırlardan ve başlıklardan böl
+    lines = document_text.split('\n')
+    
+    for line in lines:
+        # Eğer mevcut bölüm limitin altındaysa devam et
+        if len(current_section) + len(line) + 1 < AZURE_CHAR_LIMIT:
+            current_section += line + '\n'
+        else:
+            # Eğer bölüm doluysa, yeni bir bölüm başlat
+            sections.append(current_section)
+            current_section = line + '\n'
+    
+    # Son bölümü de ekle
+    if current_section:
+        sections.append(current_section)
+    
+    logger.info(f"Belge {len(sections)} bölüme ayrıldı. Her bölüm <{AZURE_CHAR_LIMIT} karakter")
+    
+    # İlk ve son bölümleri, ve önemli başlıklar içeren bölümleri seç
+    important_sections = []
+    
+    # Her zaman ilk bölümü al - genelde özet veya giriş içerir
+    if sections:
+        important_sections.append(sections[0])
+        logger.info(f"İlk bölüm eklendi: {len(sections[0])} karakter")
+    
+    # Belirli anahtar kelimeleri içeren en önemli bölümleri seç - Müşteri talebine göre anahtar kelimeleri genişlettik
+    important_keywords = [
+        # Test ile ilgili terimler
+        "test", "senaryo", "case", "kullanım", "use case", "gereksinim", "requirements",
+        "özellik", "fonksiyon", "işlev", "doğrulama", "verification", "validation",
+        
+        # Doctest özel terimleri
+        "api", "Doctest", "neta", "ulak", "aselsan", "havelsan", 
+        
+        # Bölüm başlıkları
+        "bölüm", "kısım", "modül", "chapter", "section",
+        
+        # Belge yapısı terimleri
+        "özet", "sonuç", "giriş", "açıklama", "description", "içindekiler", 
+        "amaç", "hedef", "kapsam", "scope",
+        
+        # UI/UX terimleri
+        "arayüz", "ekran", "görünüm", "dashboard", "panel"
+    ]
+    
+    # Orta bölümlerden önemli olanları seç - daha fazla bölüm alalım
+    middle_sections = sections[1:-1] if len(sections) > 2 else []
+    selected_middle_count = 0
+    max_total_chars = 0
+    
+    for section in middle_sections:
+        current_total = sum(len(s) for s in important_sections) + len(section)
+        
+        # Token limiti kontrolü - toplam seçilen metin karakter limiti altında kalmalı
+        if current_total >= AZURE_CHAR_LIMIT * 0.9:  # %90 limit kontrolü
+            logger.warning(f"Karakter limiti aşılıyor. Başka bölüm eklemiyoruz: {current_total}/{AZURE_CHAR_LIMIT}")
+            break
+            
+        # Öncelikle anahtar kelimeleri içeren bölümleri seç
+        if any(keyword in section.lower() for keyword in important_keywords):
+            important_sections.append(section)
+            selected_middle_count += 1
+            max_total_chars = current_total
+            logger.info(f"Anahtar kelime içeren bölüm eklendi ({selected_middle_count}): {len(section)} karakter")
+            
+        # Eğer yeterli sayıda önemli bölüm seçemediysen, ve bu bölüm limitlere uyuyorsa ekle
+        elif selected_middle_count < 3 and current_total < AZURE_CHAR_LIMIT * 0.8:  # %80 limit kontrolü
+            important_sections.append(section)
+            selected_middle_count += 1
+            max_total_chars = current_total
+            logger.info(f"Ek bölüm eklendi ({selected_middle_count}): {len(section)} karakter")
+    
+    # Her zaman son bölümü al - genelde sonuç veya özeti içerir
+    if len(sections) > 1 and (max_total_chars + len(sections[-1])) < AZURE_CHAR_LIMIT:
+        important_sections.append(sections[-1])
+        logger.info(f"Son bölüm eklendi: {len(sections[-1])} karakter")
+    
+    # Önemli bölümleri birleştir ve belge hakkında bilgi ekle
+    if important_sections:
+        # Belge hakkında özet bilgi ekle - böylece AI modeli hangi içeriği gördüğünü anlayabilir
+        document_info = f"""
+## BELGE BİLGİSİ
+Bu belgenin orijinal boyutu {len(document_text)} karakter olup Azure API token limitini aşmaktadır.
+Belge, önem sırasına göre seçilmiş {len(important_sections)} bölüme bölünmüştür.
+
+Toplam {len(sections)} bölüm içinden en önemli kısımlar seçilmiştir:
+- İlk bölüm (genellikle giriş, özet veya içindekiler)
+- Test senaryoları, kullanım durumları ve gereksinimler ile ilgili bölümler
+- Doctest, proje özellikleri ile ilgili bölümler
+- Son bölüm (genellikle sonuç veya özet bilgiler)
+
+Belgeden üretilen test senaryoları, bu seçili bölümlere dayanarak oluşturulmuştur.
+"""
+        
+        # Optimizasyon mesajını ekle
+        optimized_sections = [document_info] + important_sections
+        optimized_text = "\n\n".join(optimized_sections)
+        
+        # Hala çok büyükse, limiti aşan kısmı kes - daha akıllı bölme
+        if len(optimized_text) > AZURE_CHAR_LIMIT:
+            logger.warning(f"Optimize edilmiş belge hala çok büyük ({len(optimized_text)} karakter). Akıllı kırpma uygulanıyor.")
+            
+            # İlk ve son kısımların kesinlikle korunması için
+            keep_start = len(document_info) + len(important_sections[0]) + 200  # İlk bölümü koru
+            keep_end = min(300, len(important_sections[-1]))  # Son bölümün bir kısmını koru
+            
+            available_space = AZURE_CHAR_LIMIT - keep_start - keep_end - 200  # 200 karakter güvenlik payı
+            
+            if available_space > 1000:  # Yeterli alan varsa
+                middle_content = optimized_text[keep_start:-keep_end]
+                middle_truncated = middle_content[:available_space]
+                
+                optimized_text = (
+                    optimized_text[:keep_start] + 
+                    middle_truncated + 
+                    "\n\n... (belge boyutu nedeniyle orta kısım kırpıldı) ...\n\n" + 
+                    optimized_text[-keep_end:]
+                )
+                logger.info(f"Akıllı kırpma uygulandı: Baştan {keep_start}, ortadan {len(middle_truncated)}, sondan {keep_end} karakter")
+            else:
+                # Yeterli alan yoksa basit kırpma uygula
+                optimized_text = optimized_text[:AZURE_CHAR_LIMIT-100] + "\n\n... (belge boyutu nedeniyle kırpıldı)"
+    else:
+        # Hiç önemli bölüm bulunamadıysa, ilk limiti aşmayacak kısmı al ve bilgi ekle
+        document_info = f"""
+## BELGE BİLGİSİ
+Bu belgenin orijinal boyutu {len(document_text)} karakter olup Azure API token limitini aşmaktadır.
+Belge bölümlenemediği için ilk {AZURE_CHAR_LIMIT-200} karakter alınmıştır.
+"""
+        
+        truncated_content = document_text[:AZURE_CHAR_LIMIT-len(document_info)-100]
+        optimized_text = document_info + truncated_content + "\n\n... (belge boyutu nedeniyle kırpıldı)"
+    
+    logger.info(f"Belge optimize edildi. Yeni boyut: {len(optimized_text)} karakter")
+    
+    return {
+        "text": optimized_text,
+        "truncated": True,
+        "original_size": len(document_text),
+        "optimized_size": len(optimized_text),
+        "ai_provider": "azure",
+        "structure": document_structure,
+        "is_neuraagent_optimized": True,
+        "split_document": True,
+        "section_count": len(sections),
+        "important_section_count": len(important_sections)
+    }

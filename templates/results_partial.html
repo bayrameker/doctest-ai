@@ -1,0 +1,43 @@
+{% endblock %}
+{% if (test_scenarios is defined and test_scenarios and test_scenarios.extracted_images is defined and test_scenarios.image_count is defined and test_scenarios.image_count > 0) or (document_structure is defined and document_structure.extracted_images is defined) %}
+<div class="card luxury-card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-images me-2"></i>Doküman Görselleri
+            <span class="badge bg-info ms-2">
+                {% if test_scenarios.image_count is defined %}{{ test_scenarios.image_count }}{% elif document_structure.image_count is defined %}{{ document_structure.image_count }}{% else %}0{% endif %} adet
+            </span>
+        </h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% set images = test_scenarios.extracted_images if test_scenarios.extracted_images is defined else document_structure.extracted_images %}
+            {% for image in images %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-img-container text-center p-2" style="height: 200px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                        <img src="data:image/{{ image.format }};base64,{{ image.content }}" 
+                             alt="{{ image.description or 'Doküman Görseli' }}"
+                             class="img-fluid" style="max-height: 100%; object-fit: contain;">
+                    </div>
+                    <div class="card-body">
+                        <h6 class="card-title">Görsel #{{ loop.index }}</h6>
+                        <p class="card-text">
+                            {% if image.description %}{{ image.description }}{% else %}Doküman Görseli {% endif %}
+                        </p>
+                        {% if image.analysis %}
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <strong>AI Analizi:</strong><br>
+                                {{ image.analysis }}
+                            </small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}

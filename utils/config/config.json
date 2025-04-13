@@ -1,0 +1,28 @@
+{
+  "api_keys": {
+    "openai": "API-KEY",
+    "azure_openai": "API-KEY"
+  },
+  "endpoints": {
+    "azure_openai": "https://api-url.openai.azure.com/",
+    "azure_region": "eastus"
+  },
+  "defaults": {
+    "service": "azure_openai",
+    "model": "gpt-4o",
+    "max_tokens": 4000,
+    "temperature": 0.7,
+    "show_extracted_images": true
+  },
+  "ui": {
+    "theme": "dark",
+    "language": "tr",
+    "notification_level": "info"
+  },
+  "features": {
+    "neuraagent_basic_enabled": true,
+    "advanced_document_parsing": true,
+    "image_recognition": true,
+    "table_extraction": true
+  }
+}

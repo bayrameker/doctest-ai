@@ -1,0 +1,361 @@
+/* ===================================
+   SCENARIOS PAGE STYLES 
+   =================================== */
+
+/* Başlık alanı stillemeleri */
+.section-title {
+    position: relative;
+    color: var(--api-light);
+    font-weight: 600;
+    padding-left: 15px;
+    display: inline-block;
+}
+
+.section-title:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 4px;
+    background: linear-gradient(180deg, var(--api-gold), var(--api-accent));
+    border-radius: 4px;
+}
+
+/* Filtre kartı stillemeleri */
+.filter-card {
+    border: none;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(145deg,
+            rgba(18, 21, 30, 0.95) 0%,
+            rgba(12, 30, 53, 0.9) 100%);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.filter-card .card-header {
+    background: linear-gradient(90deg,
+            rgba(10, 35, 66, 0.9) 0%,
+            rgba(18, 110, 130, 0.8) 100%);
+    border-bottom: 1px solid rgba(242, 183, 5, 0.3);
+    padding: 15px 20px;
+}
+
+.filter-card .card-header h5 {
+    font-weight: 500;
+    color: var(--api-light);
+    font-size: 1.1rem;
+    margin-bottom: 0;
+}
+
+.filter-card .card-header i {
+    color: var(--api-gold);
+    font-size: 1.2rem;
+}
+
+.filter-card .card-body {
+    padding: 20px;
+}
+
+.filter-card .form-floating label {
+    color: var(--api-grey);
+}
+
+.filter-card .form-control,
+.filter-card .form-select {
+    background-color: rgba(26, 35, 55, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--api-light);
+    transition: all 0.2s ease;
+}
+
+.filter-card .form-control:focus,
+.filter-card .form-select:focus {
+    background-color: rgba(30, 40, 65, 0.7);
+    border-color: var(--api-secondary);
+    box-shadow: 0 0 0 0.25rem rgba(18, 110, 130, 0.25);
+}
+
+.filter-card .form-control::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Senaryo tablosu stillemeleri */
+.scenario-card {
+    border: none;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(145deg,
+            rgba(18, 21, 30, 0.95) 0%,
+            rgba(12, 30, 53, 0.9) 100%);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 30px;
+}
+
+.scenario-card .card-header {
+    background: linear-gradient(90deg,
+            rgba(10, 35, 66, 0.9) 0%,
+            rgba(18, 110, 130, 0.8) 100%);
+    border-bottom: 1px solid rgba(242, 183, 5, 0.3);
+    padding: 15px 20px;
+}
+
+.scenario-card .card-header h5 {
+    font-weight: 500;
+    color: var(--api-light);
+    font-size: 1.1rem;
+}
+
+.scenario-card .card-header i {
+    color: var(--api-gold);
+    font-size: 1.2rem;
+}
+
+.scenario-card .table {
+    color: var(--api-light);
+    margin-bottom: 0;
+}
+
+.scenario-card thead {
+    background: rgba(12, 30, 53, 0.7);
+}
+
+.scenario-card thead th {
+    font-weight: 500;
+    color: var(--api-silver);
+    border-bottom: 2px solid rgba(242, 183, 5, 0.3);
+    padding: 14px 16px;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.scenario-card tbody tr {
+    transition: all 0.2s ease;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.scenario-card tbody tr:hover {
+    background-color: rgba(18, 110, 130, 0.1);
+}
+
+.scenario-card tbody td {
+    padding: 15px 16px;
+    font-size: 0.95rem;
+    vertical-align: middle;
+}
+
+/* Dokuman başlık stili */
+.doc-title {
+    font-weight: 500;
+    color: var(--api-light);
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+}
+
+/* Rozet stillemeleri */
+.badge.bg-info {
+    background: linear-gradient(135deg,
+            rgba(18, 110, 130, 0.9) 0%,
+            rgba(70, 130, 180, 0.9) 100%) !important;
+    padding: 6px 10px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+/* İşlem butonları stillemeleri */
+.btn-group .btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    margin: 0 3px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-group .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-group .btn-outline-primary {
+    border-color: rgba(18, 110, 130, 0.5);
+    color: var(--api-light);
+}
+
+.btn-group .btn-outline-primary:hover {
+    background-color: rgba(18, 110, 130, 0.2);
+    border-color: var(--api-secondary);
+}
+
+.btn-group .btn-outline-success {
+    border-color: rgba(22, 219, 147, 0.5);
+    color: var(--api-light);
+}
+
+.btn-group .btn-outline-success:hover {
+    background-color: rgba(22, 219, 147, 0.2);
+    border-color: var(--api-success);
+}
+
+.btn-group .btn-outline-danger {
+    border-color: rgba(250, 82, 70, 0.5);
+    color: var(--api-light);
+}
+
+.btn-group .btn-outline-danger:hover {
+    background-color: rgba(250, 82, 70, 0.2);
+    border-color: var(--api-danger);
+}
+
+/* Yeni senaryo butonu stillemeleri */
+.btn-create-scenario {
+    padding: 10px 18px;
+    border-radius: 8px;
+    background: linear-gradient(135deg,
+            rgba(18, 110, 130, 0.2) 0%,
+            rgba(10, 35, 66, 0.2) 100%);
+    border: 1px solid rgba(18, 110, 130, 0.5);
+    color: var(--api-light);
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn-create-scenario:hover {
+    background: linear-gradient(135deg,
+            rgba(18, 110, 130, 0.4) 0%,
+            rgba(10, 35, 66, 0.4) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    border-color: var(--api-secondary);
+    color: var(--api-light);
+}
+
+.btn-create-scenario i {
+    color: var(--api-gold);
+    margin-right: 8px;
+}
+
+/* Boş durum stili */
+.empty-state {
+    padding: 50px 20px;
+    text-align: center;
+}
+
+.empty-state i {
+    font-size: 5rem;
+    color: rgba(255, 255, 255, 0.1);
+    margin-bottom: 20px;
+}
+
+.empty-state h5 {
+    color: var(--api-silver);
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+.empty-state p {
+    color: var(--api-grey);
+    max-width: 500px;
+    margin: 0 auto 25px;
+}
+
+/* Arama butonu stillemeleri */
+.btn-search {
+    height: 58px;
+    /* Form-floating ile aynı yükseklik */
+    background: linear-gradient(135deg,
+            rgba(18, 110, 130, 0.3) 0%,
+            rgba(10, 35, 66, 0.3) 100%);
+    border: 1px solid rgba(18, 110, 130, 0.5);
+    color: var(--api-light);
+    transition: all 0.3s ease;
+}
+
+.btn-search:hover {
+    background: linear-gradient(135deg,
+            rgba(18, 110, 130, 0.5) 0%,
+            rgba(10, 35, 66, 0.5) 100%);
+    color: var(--api-light);
+    border-color: var(--api-gold);
+}
+
+.btn-search i {
+    color: var(--api-gold);
+}
+
+/* Modal stillemeleri */
+.modal-confirm .modal-header {
+    border-bottom-color: rgba(242, 183, 5, 0.2);
+}
+
+.modal-confirm .modal-footer {
+    border-top-color: rgba(242, 183, 5, 0.2);
+}
+
+/* İlerleyen modül için sayfalama stillemeleri */
+.scenario-pagination {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.scenario-pagination .page-link {
+    background-color: rgba(18, 21, 30, 0.7);
+    border-color: rgba(18, 110, 130, 0.3);
+    color: var(--api-light);
+    padding: 8px 16px;
+    transition: all 0.3s ease;
+}
+
+.scenario-pagination .page-link:hover {
+    background-color: rgba(18, 110, 130, 0.2);
+    border-color: rgba(18, 110, 130, 0.5);
+    color: var(--api-light);
+}
+
+.scenario-pagination .page-item.active .page-link {
+    background-color: var(--api-secondary);
+    border-color: var(--api-secondary);
+    color: white;
+}
+
+/* Animasyonlar */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fadeInUp {
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+/* Duyarlı tasarım düzenlemeleri */
+@media (max-width: 768px) {
+    .btn-group .btn {
+        padding: 6px 10px;
+    }
+
+    .doc-title {
+        max-width: 150px;
+    }
+
+    .scenario-card tbody td {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+}

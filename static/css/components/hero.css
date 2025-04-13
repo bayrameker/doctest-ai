@@ -1,0 +1,168 @@
+/* ================================
+   HERO SECTION STYLES
+   ================================ */
+
+/* Modern Hero Section Styles */
+.hero-section {
+    background: linear-gradient(135deg, #0a2342 0%, #126e82 50%, rgba(10, 35, 66, 0.9) 100%);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    margin-bottom: 2.5rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    transition: all 0.5s ease;
+}
+
+.hero-section::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+    transform: rotate(30deg);
+    z-index: 1;
+    opacity: 0.6;
+    animation: pulse-light 10s infinite alternate;
+}
+
+.hero-section::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.8), transparent);
+    z-index: 2;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 5;
+}
+
+.hero-title {
+    font-size: 3.8rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(120deg, #f2b705, #f5d020, #f2b705);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.8rem;
+    text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    transform: perspective(500px) translateZ(0);
+    transition: all 0.3s ease;
+}
+
+.hero-title:hover {
+    transform: perspective(500px) translateZ(10px);
+}
+
+.hero-subtitle {
+    font-size: 1.4rem;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 300;
+    max-width: 800px;
+    margin: 0 auto 1.5rem auto;
+    line-height: 1.6;
+}
+
+.hero-badge {
+    display: inline-block;
+    background: rgba(255, 62, 95, 0.2);
+    color: #ff3e5f;
+    padding: 0.4rem 1rem;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(255, 62, 95, 0.3);
+    backdrop-filter: blur(10px);
+}
+
+.hero-decoration {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 62, 95, 0.2) 0%, rgba(255, 62, 95, 0) 70%);
+    top: -100px;
+    right: -100px;
+    z-index: 1;
+    animation: float 8s infinite alternate ease-in-out;
+}
+
+.hero-decoration-2 {
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(18, 110, 130, 0.3) 0%, rgba(18, 110, 130, 0) 70%);
+    bottom: -50px;
+    left: -50px;
+    z-index: 1;
+    animation: float 12s infinite alternate-reverse ease-in-out;
+}
+
+.hero-cta-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.cta-button {
+    padding: 0.8rem 2rem;
+    font-weight: 600;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    border: none;
+    position: relative;
+    overflow: hidden;
+    z-index: 10;
+    font-size: 1.1rem;
+}
+
+.cta-button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(-100%);
+    transition: all 0.3s ease;
+    z-index: -1;
+}
+
+.cta-button:hover::before {
+    transform: translateX(0);
+}
+
+.cta-primary {
+    background: linear-gradient(45deg, #ff3e5f, #ff7086);
+    color: white;
+    box-shadow: 0 10px 20px rgba(255, 62, 95, 0.3);
+}
+
+.cta-primary:hover {
+    box-shadow: 0 15px 25px rgba(255, 62, 95, 0.4);
+    transform: translateY(-3px);
+}
+
+.cta-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    color: #f2b705;
+    border: 1px solid rgba(242, 183, 5, 0.3);
+}
+
+.cta-secondary:hover {
+    background: rgba(242, 183, 5, 0.1);
+    transform: translateY(-3px);
+}

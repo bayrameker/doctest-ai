@@ -1,0 +1,349 @@
+{% extends 'layout.html' %}
+
+{% block title %}Ayarlar - Test Senaryosu Oluşturucu{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Sistem Ayarları</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <div class="row mt-4">
+        <div class="col-md-3">
+            <div class="list-group" id="settings-tab" role="tablist">
+                <a class="list-group-item list-group-item-action active" data-bs-toggle="list" href="#api-keys"
+                    role="tab">API Anahtarları</a>
+                <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#models" role="tab">Model
+                    Ayarları</a>
+                <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#system" role="tab">Sistem
+                    Ayarları</a>
+                <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#features"
+                    role="tab">Özellikler</a>
+                <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#about"
+                    role="tab">Hakkında</a>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="tab-content">
+                <!-- API Anahtarları -->
+                <div class="tab-pane fade show active" id="api-keys" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>API Anahtarları</h5>
+                        </div>
+                        <div class="card-body">
+                            <form action="{{ url_for('update_api_keys') }}" method="POST">
+                                <div class="mb-3">
+                                    <label for="openai_api_key" class="form-label">OpenAI API Anahtarı</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="openai_api_key"
+                                            name="openai_api_key"
+                                            value="{{ config.api_keys.openai if config.api_keys.openai else '' }}">
+                                        <button class="btn btn-outline-secondary" type="button"
+                                            onclick="togglePassword('openai_api_key')">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="form-text">OpenAI GPT modelleri için API anahtarı</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="azure_openai_api_key" class="form-label">Azure OpenAI API
+                                        Anahtarı</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="azure_openai_api_key"
+                                            name="azure_openai_api_key"
+                                            value="{{ config.api_keys.azure_openai if config.api_keys.azure_openai else '' }}">
+                                        <button class="btn btn-outline-secondary" type="button"
+                                            onclick="togglePassword('azure_openai_api_key')">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="form-text">Azure OpenAI (api-url) hizmeti için API anahtarı</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="azure_endpoint" class="form-label">Azure OpenAI Endpoint</label>
+                                    <input type="text" class="form-control" id="azure_endpoint" name="azure_endpoint"
+                                        value="{{ config.endpoints.azure_openai if config.endpoints.azure_openai else '' }}">
+                                    <div class="form-text">Azure OpenAI hizmeti endpoint URL'si</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="azure_region" class="form-label">Azure Bölgesi</label>
+                                    <input type="text" class="form-control" id="azure_region" name="azure_region"
+                                        value="{{ config.endpoints.azure_region if config.endpoints.azure_region else 'eastus' }}">
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">API Anahtarlarını Kaydet</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Model Ayarları -->
+                <div class="tab-pane fade" id="models" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Model Ayarları</h5>
+                        </div>
+                        <div class="card-body">
+                            <form action="{{ url_for('update_model_settings') }}" method="POST">
+                                <h6 class="mb-3">Varsayılan Model Tercihleri</h6>
+
+                                <div class="mb-3">
+                                    <label for="default_service" class="form-label">Varsayılan AI Servisi</label>
+                                    <select class="form-select" id="default_service" name="default_service">
+                                        <option value="azure_openai" {% if config.defaults.service=='azure_openai'
+                                            %}selected{% endif %}>Azure OpenAI (api-url)</option>
+                                        <option value="openai" {% if config.defaults.service=='openai' %}selected{%
+                                            endif %}>OpenAI</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="default_model" class="form-label">Varsayılan Model</label>
+                                    <select class="form-select" id="default_model" name="default_model">
+                                        <option value="gpt-4o" {% if config.defaults.model=='gpt-4o' %}selected{% endif
+                                            %}>GPT-4o</option>
+                                        <option value="gpt-4" {% if config.defaults.model=='gpt-4' %}selected{% endif
+                                            %}>GPT-4</option>
+                                        <option value="gpt-4o-mini" {% if config.defaults.model=='gpt-4o-mini'
+                                            %}selected{% endif %}>GPT-4o Mini</option>
+                                        <option value="api-url-o1" {% if config.defaults.model=='api-url-o1'
+                                            %}selected{% endif %}>api-url-O1</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="max_tokens" class="form-label">Maksimum Token</label>
+                                    <input type="number" class="form-control" id="max_tokens" name="max_tokens"
+                                        value="{{ config.defaults.max_tokens if config.defaults.max_tokens else 4000 }}">
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="temperature" class="form-label">Sıcaklık (Yaratıcılık)</label>
+                                    <input type="range" class="form-range" min="0" max="1" step="0.1" id="temperature"
+                                        name="temperature"
+                                        value="{{ config.defaults.temperature if config.defaults.temperature else 0.7 }}">
+                                    <div class="d-flex justify-content-between">
+                                        <span class="small">0 (Kesin)</span>
+                                        <span class="small" id="temperatureValue">{{ config.defaults.temperature if
+                                            config.defaults.temperature else '0.7' }}</span>
+                                        <span class="small">1 (Yaratıcı)</span>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Model Ayarlarını Kaydet</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sistem Ayarları -->
+                <div class="tab-pane fade" id="system" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Sistem Ayarları</h5>
+                        </div>
+                        <div class="card-body">
+                            <form action="{{ url_for('update_system_settings') }}" method="POST">
+                                <div class="mb-3">
+                                    <label class="form-label">UI Teması</label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="theme" id="themeDark"
+                                            value="dark" {% if config.ui.theme=='dark' %}checked{% endif %}>
+                                        <label class="form-check-label" for="themeDark">
+                                            Koyu Tema
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="theme" id="themeLight"
+                                            value="light" {% if config.ui.theme=='light' %}checked{% endif %}>
+                                        <label class="form-check-label" for="themeLight">
+                                            Açık Tema
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="language" class="form-label">Dil</label>
+                                    <select class="form-select" id="language" name="language">
+                                        <option value="tr" {% if config.ui.language=='tr' %}selected{% endif %}>Türkçe
+                                        </option>
+                                        <option value="en" {% if config.ui.language=='en' %}selected{% endif %}>
+                                            İngilizce</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="notification_level" class="form-label">Bildirim Seviyesi</label>
+                                    <select class="form-select" id="notification_level" name="notification_level">
+                                        <option value="debug" {% if config.ui.notification_level=='debug' %}selected{%
+                                            endif %}>Debug (Tüm bilgiler)</option>
+                                        <option value="info" {% if config.ui.notification_level=='info' %}selected{%
+                                            endif %}>Info (Genel bilgilendirmeler)</option>
+                                        <option value="warning" {% if config.ui.notification_level=='warning'
+                                            %}selected{% endif %}>Warning (Sadece uyarılar)</option>
+                                        <option value="error" {% if config.ui.notification_level=='error' %}selected{%
+                                            endif %}>Error (Sadece hatalar)</option>
+                                    </select>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Sistem Ayarlarını Kaydet</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Özellikler -->
+                <div class="tab-pane fade" id="features" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Özellik Ayarları</h5>
+                        </div>
+                        <div class="card-body">
+                            <form action="{{ url_for('update_feature_settings') }}" method="POST">
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                        id="neuraagent_basic_enabled" name="neuraagent_basic_enabled" {% if
+                                        config.features.neuraagent_basic_enabled %}checked{% endif %}>
+                                    <label class="form-check-label" for="neuraagent_basic_enabled">NeuraAgent Basic
+                                        Etkin</label>
+                                </div>
+
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                        id="advanced_document_parsing" name="advanced_document_parsing" {% if
+                                        config.features.advanced_document_parsing %}checked{% endif %}>
+                                    <label class="form-check-label" for="advanced_document_parsing">Gelişmiş Belge
+                                        Ayrıştırma</label>
+                                </div>
+
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="image_recognition"
+                                        name="image_recognition" {% if config.features.image_recognition %}checked{%
+                                        endif %}>
+                                    <label class="form-check-label" for="image_recognition">Görsel Tanıma</label>
+                                </div>
+
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch" id="table_extraction"
+                                        name="table_extraction" {% if config.features.table_extraction %}checked{% endif
+                                        %}>
+                                    <label class="form-check-label" for="table_extraction">Tablo Çıkarma</label>
+                                </div>
+
+                                <div class="mb-3 form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" role="switch"
+                                        id="show_extracted_images" name="show_extracted_images" {% if
+                                        config.defaults.show_extracted_images %}checked{% endif %}>
+                                    <label class="form-check-label" for="show_extracted_images">Çıkarılan Görselleri
+                                        Göster</label>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Özellik Ayarlarını Kaydet</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hakkında -->
+                <div class="tab-pane fade" id="about" role="tabpanel">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5>Hakkında</h5>
+                        </div>
+                        <div class="card-body">
+                            <h4>Test Senaryosu Oluşturucu</h4>
+                            <p class="mb-3">Sürüm: 1.0.0</p>
+
+                            <h5>Desteklenen AI Modelleri</h5>
+                            <ul>
+                                <li>OpenAI GPT-4o</li>
+                                <li>OpenAI GPT-4</li>
+                                <li>api-url GPT-4o</li>
+                                <li>api-url GPT-4</li>
+                                <li>api-url GPT-4o-mini</li>
+                                <li>api-url-O1</li>
+                            </ul>
+
+                            <h5>Desteklenen Dosya Formatları</h5>
+                            <ul>
+                                <li>PDF (.pdf)</li>
+                                <li>Microsoft Word (.doc, .docx)</li>
+                                <li>Metin Dosyaları (.txt)</li>
+                            </ul>
+
+                            <h5>Geliştirici</h5>
+                            <p>Doctest Ar-Ge</p>
+
+                            <div class="d-grid gap-2 mt-4">
+                                <button class="btn btn-outline-secondary" type="button" onclick="clearAllCache()">Tüm
+                                    Önbelleği Temizle</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Şifre görünürlüğünü değiştir
+    function togglePassword(inputId) {
+        const input = document.getElementById(inputId);
+        const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+        input.setAttribute('type', type);
+
+        // Butondaki ikonu değiştir
+        const button = input.nextElementSibling;
+        const icon = button.querySelector('i');
+        if (type === 'text') {
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    }
+
+    // Sıcaklık değerinin gösterilmesi
+    document.getElementById('temperature').addEventListener('input', function () {
+        document.getElementById('temperatureValue').textContent = this.value;
+    });
+
+    // Tüm önbelleği temizleme
+    function clearAllCache() {
+        if (confirm('Tüm önbellek temizlenecek. Devam etmek istiyor musunuz?')) {
+            fetch('{{ url_for("clear_all_cache") }}', {
+                method: 'POST',
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Önbellek başarıyla temizlendi.');
+                    } else {
+                        alert('Önbellek temizlenirken bir hata oluştu: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    alert('Önbellek temizlenirken bir hata oluştu: ' + error);
+                });
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,86 @@
+/* ================================
+   CARD STYLES
+   ================================ */
+
+/* Luxury card styling */
+.luxury-card {
+    position: relative;
+    background: linear-gradient(145deg,
+            rgba(28, 28, 48, 0.95) 0%,
+            rgba(22, 22, 44, 0.99) 100%);
+    border: none;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4),
+        0 0 0 1px rgba(255, 255, 255, 0.05),
+        0 0 15px rgba(212, 175, 55, 0.2);
+    overflow: hidden;
+    transition: all 0.4s ease;
+}
+
+.luxury-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23d4af37' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 1;
+    z-index: -1;
+}
+
+/* Modern Card Styles */
+.card {
+    border-radius: 0.75rem;
+    background: linear-gradient(145deg,
+            rgba(20, 23, 34, 0.95) 0%,
+            rgba(18, 21, 30, 0.99) 100%);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.05),
+        0 1px 3px rgba(18, 110, 130, 0.2);
+    border: none;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.card:hover {
+    transform: translateY(-5px) scale(1.01);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.07),
+        0 0 15px rgba(18, 110, 130, 0.3);
+}
+
+.card-header {
+    background: linear-gradient(90deg,
+            var(--api-primary) 0%,
+            var(--api-secondary) 100%);
+    color: white;
+    padding: 1.25rem 1.5rem;
+    border-radius: 0.75rem 0.75rem 0 0 !important;
+    border-bottom: 1px solid rgba(242, 183, 5, 0.5) !important;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Add subtle highlight to card headers */
+.card-header:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.4) 50%,
+            rgba(255, 255, 255, 0) 100%);
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-footer {
+    background: rgba(26, 26, 46, 0.8);
+    border-top: 1px solid rgba(192, 192, 192, 0.2);
+}

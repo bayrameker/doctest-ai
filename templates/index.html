@@ -1,0 +1,1043 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<!-- Modern Hero Section with 3D Effect -->
+<div class="hero-section mb-5">
+    <div class="hero-decoration"></div>
+    <div class="hero-decoration-2"></div>
+
+    <div class="hero-content text-center">
+        <div class="hero-badge">Yapay Zeka Destekli</div>
+        <h1 class="hero-title">
+            <span class="api-logo">Doctest</span> Test Scenario Generator
+        </h1>
+        <p class="hero-subtitle">
+            Türkiye'nin lider teknoloji şirketi Doctest tarafından geliştirilen, dokümanları analiz edip otomatik test
+            senaryoları oluşturan yapay zeka platformu
+        </p>
+
+        <div class="hero-cta-group">
+            <a href="#upload-section" class="cta-button cta-primary">
+                <i class="fas fa-file-upload me-2"></i> Doküman Yükle
+            </a>
+            <a href="#features" class="cta-button cta-secondary">
+                <i class="fas fa-info-circle me-2"></i> Nasıl Çalışır
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Stats Cards -->
+<div class="stats-section">
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-file-alt"></i>
+        </div>
+        <div class="stat-number">50+</div>
+        <div class="stat-label">Desteklenen Format</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-brain"></i>
+        </div>
+        <div class="stat-number">%98</div>
+        <div class="stat-label">Doğruluk Oranı</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon">
+            <i class="fas fa-tachometer-alt"></i>
+        </div>
+        <div class="stat-number">5x</div>
+        <div class="stat-label">Hız Kazancı</div>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <!-- Ultra Modern Upload Section -->
+        <div class="card luxury-card">
+            <div class="card-header">
+                <h2 class="mb-0">
+                    <i class="fas fa-file-alt me-2"></i>
+                    Doküman Analizi
+                </h2>
+            </div>
+            <div class="card-body">
+                <p class="lead">
+                    Test senaryoları ve kullanım durumlarını otomatik olarak oluşturmak için dokümanınızı yükleyin.
+                    Yapay zeka teknolojimiz, dokümanınızı analiz ederek kapsamlı test senaryoları üretecektir.
+                </p>
+
+                <!-- NeuraAgent Bilgi Kutusu -->
+                {% if neuraagent_available %}
+                <div class="alert {% if agent_enabled %}alert-success{% else %}alert-secondary{% endif %} d-flex align-items-center my-3"
+                    role="alert">
+                    <div class="d-flex align-items-center flex-grow-1">
+                        <i
+                            class="fas fa-robot me-2 {% if agent_enabled %}text-success{% else %}text-secondary{% endif %}"></i>
+                        <div>
+                            <strong>NeuraAgent Basic:</strong>
+                            {% if agent_enabled %}
+                            Akıllı doküman optimizasyonu aktif. Büyük dokümanlar otomatik olarak işlenecek.
+                            {% else %}
+                            Devre dışı. Etkinleştirmek için yan menüdeki düğmeyi kullanın.
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div>
+                        <a href="{{ url_for('agent_settings') }}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-cog"></i>
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+
+                <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data" class="mt-4">
+                    <!-- Input Method Selection Tabs -->
+                    <ul class="nav nav-tabs mb-4" id="inputMethodTab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="document-tab" data-bs-toggle="tab"
+                                data-bs-target="#document-tab-pane" type="button" role="tab"
+                                aria-controls="document-tab-pane" aria-selected="true">
+                                <i class="fas fa-file-upload me-2"></i>Doküman Yükle
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="text-tab" data-bs-toggle="tab" data-bs-target="#text-tab-pane"
+                                type="button" role="tab" aria-controls="text-tab-pane" aria-selected="false">
+                                <i class="fas fa-keyboard me-2"></i>Metin Gir
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Input Method Tab Contents -->
+                    <div class="tab-content" id="inputMethodTabContent">
+                        <!-- Document Upload Tab -->
+                        <div class="tab-pane fade show active" id="document-tab-pane" role="tabpanel"
+                            aria-labelledby="document-tab" tabindex="0">
+                            <div class="mb-4">
+                                <label for="document" class="form-label">
+                                    <i class="fas fa-file-upload me-2"></i>
+                                    Doküman Seçin
+                                </label>
+                                <div class="custom-file-upload">
+                                    <input type="file" class="form-control" id="document" name="document"
+                                        accept=".pdf,.doc,.docx,.txt">
+                                    <div class="form-text mt-2">Desteklenen formatlar: PDF, DOC, DOCX, TXT (Maksimum
+                                        boyut: 16MB)</div>
+                                </div>
+
+                                <!-- Enhanced Document Analysis Options -->
+                                <div class="mt-4">
+                                    <h5>
+                                        <i class="fas fa-cogs me-2"></i>
+                                        Gelişmiş Doküman Analizi
+                                    </h5>
+                                    <div class="form-text mb-2">
+                                        Dokümanınızdaki görsel öğeleri ve zengin içeriği test senaryolarında kullanmak
+                                        için aşağıdaki seçenekleri etkinleştirin
+                                    </div>
+
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="extract_images"
+                                            name="extract_images" value="true">
+                                        <label class="form-check-label" for="extract_images">
+                                            <i class="fas fa-images me-2"></i>
+                                            Resim ve diyagramları tespit et
+                                        </label>
+                                        <small class="form-text d-block ms-4">Dokümandaki görselleri tespit eder ve
+                                            bunlarla ilgili test senaryoları önerir</small>
+                                    </div>
+
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="extract_tables"
+                                            name="extract_tables" value="true">
+                                        <label class="form-check-label" for="extract_tables">
+                                            <i class="fas fa-table me-2"></i>
+                                            Tabloları tespit et
+                                        </label>
+                                        <small class="form-text d-block ms-4">Dokümandaki tabloları analiz eder ve test
+                                            senaryolarına dahil eder</small>
+                                    </div>
+
+                                    <div class="form-check form-switch mb-2">
+                                        <input class="form-check-input" type="checkbox" id="use_smart_processing"
+                                            name="use_smart_processing" value="true">
+                                        <label class="form-check-label" for="use_smart_processing">
+                                            <i class="fas fa-microchip me-2"></i>
+                                            <span class="badge bg-primary me-1">NeuraParse Plus</span>
+                                            Akıllı belge işleme
+                                        </label>
+                                        <small class="form-text d-block ms-4">Gelişmiş yapay zeka destekli belge analizi
+                                            ve akıllı parçalama (büyük dokümanlar için otomatik etkinleşir)</small>
+                                    </div>
+
+                                    <h6 class="mt-3 mb-2">LLM Ready Veri Seçenekleri:</h6>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="llm_ready_option"
+                                            id="llm_ready_none" value="none" checked>
+                                        <label class="form-check-label" for="llm_ready_none">
+                                            <i class="fas fa-file-alt me-2"></i>
+                                            Standart Parsing
+                                        </label>
+                                        <small class="form-text d-block ms-4">Dokümanı temel yöntemlerle işler, mevcut
+                                            kütüphaneler kullanır</small>
+                                    </div>
+
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="llm_ready_option"
+                                            id="use_neuradoc" value="neuradoc" checked>
+                                        <label class="form-check-label" for="use_neuradoc">
+                                            <i class="fas fa-building me-2 text-primary"></i>
+                                            <span class="badge bg-success me-1">YENİ</span>
+                                            NeuraDoc ile İşle
+                                        </label>
+                                        <small class="form-text d-block ms-4">Dokümanı tamamen kendi in-house çözümümüz
+                                            olan NeuraDoc ile işler (en güvenilir seçenek)</small>
+                                    </div>
+
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="llm_ready_option"
+                                            id="use_docling" value="docling">
+                                        <label class="form-check-label" for="use_docling">
+                                            <i class="fas fa-robot me-2"></i>
+                                            Docling ile İşle
+                                        </label>
+                                        <small class="form-text d-block ms-4">Dokümanı Docling kütüphanesi ile LLM için
+                                            optimize edilmiş formatta işler (daha az kaynak kullanır)</small>
+                                    </div>
+
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="llm_ready_option"
+                                            id="use_llama_parse" value="llama">
+                                        <label class="form-check-label" for="use_llama_parse">
+                                            <i class="fas fa-brain me-2"></i>
+                                            LlamaParse ile İşle
+                                        </label>
+                                        <small class="form-text d-block ms-4">Dokümanı LLM için LlamaParse ile optimize
+                                            edilmiş formatta parse eder, en iyi sonuç için API anahtarı
+                                            gerektirir</small>
+                                    </div>
+
+                                    <!-- LLM API Key Input (conditional) -->
+                                    <div id="llamaApiKeySection" class="mt-3 ps-4 border-start border-info d-none">
+                                        <div class="mb-3">
+                                            <label for="llama_api_key" class="form-label">
+                                                <i class="fas fa-key me-2"></i>
+                                                LlamaParse API Anahtarı <span class="badge bg-info">İsteğe Bağlı</span>
+                                            </label>
+                                            <input type="password" class="form-control" id="llama_api_key"
+                                                name="llama_api_key"
+                                                placeholder="LlamaParse API anahtarınızı girin (isteğe bağlı)">
+                                            <div class="form-text">
+                                                API anahtarı girmeden de devam edebilirsiniz, ancak en iyi sonuçlar için
+                                                anahtar kullanmanız önerilir. <a href="https://cloud.llamaindex.ai/"
+                                                    target="_blank">Buradan</a> ücretsiz bir anahtar alabilirsiniz.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Text Input Tab -->
+                        <div class="tab-pane fade" id="text-tab-pane" role="tabpanel" aria-labelledby="text-tab"
+                            tabindex="0">
+                            <div class="mb-4">
+                                <label for="input_text" class="form-label">
+                                    <i class="fas fa-keyboard me-2"></i>
+                                    Metni buraya girin
+                                </label>
+                                <textarea class="form-control" id="input_text" name="input_text" rows="8"
+                                    placeholder="Lütfen analiz edilecek metni buraya girin. Özellikler, gereksinimler, kullanım durumları veya herhangi bir teknik özellikleri içerebilir..."></textarea>
+                                <div class="form-text mt-2">Yapay zeka modeli bu metni analiz ederek test senaryolarını
+                                    oluşturacaktır</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" id="input_method" name="input_method" value="document">
+
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="fas fa-brain me-2"></i>
+                            Yapay Zeka Modeli Seçin
+                        </label>
+                        <div class="d-flex flex-wrap gap-3">
+                            <div class="ai-model-option">
+                                {% if ollama_active %}
+                                <input class="form-check-input" type="radio" name="ai_model" id="ollama" value="ollama">
+                                <label class="form-check-label" for="ollama">
+                                    <i class="fas fa-cogs me-1"></i> Ollama
+                                    <span class="badge bg-success">Aktif</span>
+                                </label>
+                                {% else %}
+                                <input class="form-check-input" type="radio" name="ai_model" id="ollama" value="ollama"
+                                    disabled>
+                                <label class="form-check-label text-muted" for="ollama">
+                                    <i class="fas fa-cogs me-1"></i> Ollama
+                                    <span class="badge bg-secondary">Aktif Değil</span>
+                                </label>
+                                <span class="d-block small text-warning mt-1">Ollama çalışmıyor veya erişilemiyor</span>
+                                {% endif %}
+                            </div>
+                            <div class="ai-model-option">
+                                <input class="form-check-input" type="radio" name="ai_model" id="openai" value="openai"
+                                    checked>
+                                <label class="form-check-label" for="openai">
+                                    <i class="fas fa-robot me-1"></i> OpenAI (GPT-4o)
+                                    <span class="badge bg-primary">Varsayılan</span>
+                                </label>
+                            </div>
+                            <div class="ai-model-option">
+                                <input class="form-check-input" type="radio" name="ai_model" id="deepseek"
+                                    value="deepseek">
+                                <label class="form-check-label" for="deepseek">
+                                    <i class="fas fa-search me-1"></i> DeepSeek
+                                </label>
+                            </div>
+                            <div class="ai-model-option">
+                                <input class="form-check-input" type="radio" name="ai_model" id="azure" value="azure">
+                                <label class="form-check-label" for="azure">
+                                    <i class="fas fa-cloud me-1"></i> Azure OpenAI
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Azure Model Selection (conditional) -->
+                    <div id="azureModelSection" class="mb-4 ps-4 border-start border-info d-none">
+                        <label class="form-label">
+                            <i class="fas fa-server me-2"></i>
+                            Azure OpenAI Model Seçin
+                        </label>
+                        <div class="d-flex flex-wrap gap-3">
+                            <div class="azure-model-option">
+                                <input class="form-check-input" type="radio" name="azure_model" id="azure_o1" value="o1"
+                                    checked>
+                                <label class="form-check-label" for="azure_o1">
+                                    <i class="fas fa-bolt me-1"></i> o1 (En Yetenekli)
+                                </label>
+                            </div>
+                            <div class="azure-model-option">
+                                <input class="form-check-input" type="radio" name="azure_model" id="azure_o3_mini"
+                                    value="o3-mini">
+                                <label class="form-check-label" for="azure_o3_mini">
+                                    <i class="fas fa-tachometer-alt me-1"></i> o3-mini (Hızlı)
+                                </label>
+                            </div>
+                            <div class="azure-model-option">
+                                <input class="form-check-input" type="radio" name="azure_model" id="azure_gpt4o_mini"
+                                    value="gpt-4o-mini">
+                                <label class="form-check-label" for="azure_gpt4o_mini">
+                                    <i class="fas fa-balance-scale me-1"></i> gpt-4o-mini (Dengeli)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg generate-btn" id="generate-btn">
+                            <span class="btn-glow"></span>
+                            <i class="fas fa-magic me-2"></i>
+                            Test Senaryoları Oluştur
+                        </button>
+                    </div>
+                </form>
+
+                <script>
+                    // Script to update input method based on selected tab
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const documentTab = document.getElementById('document-tab');
+                        const textTab = document.getElementById('text-tab');
+                        const inputMethodField = document.getElementById('input_method');
+                        const documentInput = document.getElementById('document');
+                        const textInput = document.getElementById('input_text');
+                        const generateBtn = document.getElementById('generate-btn');
+                        const llamaApiKeySection = document.getElementById('llamaApiKeySection');
+                        const llamaApiKey = document.getElementById('llama_api_key');
+
+                        // Get radio buttons
+                        const llmReadyOptions = document.getElementsByName('llm_ready_option');
+                        const useLlamaParseRadio = document.getElementById('use_llama_parse');
+
+                        // LLM Ready option change
+                        llmReadyOptions.forEach(function (radio) {
+                            radio.addEventListener('change', function () {
+                                // Show/hide LlamaParse API key section when LlamaParse is selected
+                                if (radio.value === 'llama') {
+                                    llamaApiKeySection.classList.remove('d-none');
+
+                                    // Set hidden fields for backward compatibility
+                                    const hiddenLlamaField = document.createElement('input');
+                                    hiddenLlamaField.type = 'hidden';
+                                    hiddenLlamaField.name = 'use_llama_parse';
+                                    hiddenLlamaField.value = 'true';
+                                    hiddenLlamaField.id = 'hidden_use_llama_parse';
+
+                                    // Remove existing hidden field if it exists
+                                    const existingField = document.getElementById('hidden_use_llama_parse');
+                                    if (existingField) {
+                                        existingField.remove();
+                                    }
+
+                                    // Add hidden field
+                                    document.querySelector('form').appendChild(hiddenLlamaField);
+                                } else if (radio.value === 'neuradoc') {
+                                    llamaApiKeySection.classList.add('d-none');
+
+                                    // Set hidden fields for NeuraDoc
+                                    const hiddenNeuraDocField = document.createElement('input');
+                                    hiddenNeuraDocField.type = 'hidden';
+                                    hiddenNeuraDocField.name = 'use_neuradoc';
+                                    hiddenNeuraDocField.value = 'true';
+                                    hiddenNeuraDocField.id = 'hidden_use_neuradoc';
+
+                                    // Remove existing hidden field if it exists
+                                    const existingNeuraDocField = document.getElementById('hidden_use_neuradoc');
+                                    if (existingNeuraDocField) {
+                                        existingNeuraDocField.remove();
+                                    }
+
+                                    // Remove other fields if they exist
+                                    const existingLlamaField = document.getElementById('hidden_use_llama_parse');
+                                    if (existingLlamaField) {
+                                        existingLlamaField.remove();
+                                    }
+
+                                    const existingDoclingField = document.getElementById('hidden_use_docling');
+                                    if (existingDoclingField) {
+                                        existingDoclingField.remove();
+                                    }
+
+                                    // Add hidden field
+                                    document.querySelector('form').appendChild(hiddenNeuraDocField);
+
+                                } else if (radio.value === 'docling') {
+                                    llamaApiKeySection.classList.add('d-none');
+
+                                    // Set hidden fields for docling
+                                    const hiddenDoclingField = document.createElement('input');
+                                    hiddenDoclingField.type = 'hidden';
+                                    hiddenDoclingField.name = 'use_docling';
+                                    hiddenDoclingField.value = 'true';
+                                    hiddenDoclingField.id = 'hidden_use_docling';
+
+                                    // Remove existing hidden field if it exists
+                                    const existingDoclingField = document.getElementById('hidden_use_docling');
+                                    if (existingDoclingField) {
+                                        existingDoclingField.remove();
+                                    }
+
+                                    // Remove other fields if they exist
+                                    const existingLlamaField = document.getElementById('hidden_use_llama_parse');
+                                    if (existingLlamaField) {
+                                        existingLlamaField.remove();
+                                    }
+
+                                    const existingNeuraDocField = document.getElementById('hidden_use_neuradoc');
+                                    if (existingNeuraDocField) {
+                                        existingNeuraDocField.remove();
+                                    }
+
+                                    // Add hidden field
+                                    document.querySelector('form').appendChild(hiddenDoclingField);
+                                } else {
+                                    llamaApiKeySection.classList.add('d-none');
+
+                                    // Remove any existing hidden fields
+                                    const existingLlamaField = document.getElementById('hidden_use_llama_parse');
+                                    if (existingLlamaField) {
+                                        existingLlamaField.remove();
+                                    }
+
+                                    const existingDoclingField = document.getElementById('hidden_use_docling');
+                                    if (existingDoclingField) {
+                                        existingDoclingField.remove();
+                                    }
+
+                                    const existingNeuraDocField = document.getElementById('hidden_use_neuradoc');
+                                    if (existingNeuraDocField) {
+                                        existingNeuraDocField.remove();
+                                    }
+                                }
+                            });
+                        });
+
+                        documentTab.addEventListener('click', function () {
+                            inputMethodField.value = 'document';
+                        });
+
+                        textTab.addEventListener('click', function () {
+                            inputMethodField.value = 'text';
+                        });
+
+                        // Form validation before submit
+                        document.querySelector('form').addEventListener('submit', function (e) {
+                            if (inputMethodField.value === 'document' && !documentInput.files[0]) {
+                                e.preventDefault();
+                                alert('Lütfen bir doküman seçin veya metin girin.');
+                            } else if (inputMethodField.value === 'text' && !textInput.value.trim()) {
+                                e.preventDefault();
+                                alert('Lütfen bir metin girin veya doküman yükleyin.');
+                            }
+
+                            // Check if LlamaParse is selected
+                            let usingLlamaParse = false;
+                            llmReadyOptions.forEach(function (radio) {
+                                if (radio.checked && radio.value === 'llama') {
+                                    usingLlamaParse = true;
+                                }
+                            });
+
+                            // LlamaParse API key validation - warn but still allow submission without key
+                            if (usingLlamaParse && !llamaApiKey.value.trim()) {
+                                const proceed = confirm('LlamaParse için API anahtarı girilmedi. API anahtarı olmadan sınırlı işlevsellik sunulacak. Devam etmek istiyor musunuz?');
+                                if (!proceed) {
+                                    e.preventDefault();
+                                }
+                            }
+                        });
+                    });
+                </script>
+            </div>
+        </div>
+
+        <!-- Süper Modern How It Works Section -->
+        <div class="card luxury-card mt-5" id="features">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Nasıl Çalışır
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row features-row g-4">
+                    <div class="col-md-4 text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-file-upload"></i>
+                        </div>
+                        <h5 class="mt-4">Doküman Yükleyin</h5>
+                        <p>Gereksinim dokümanlarınızı, teknik şartnameleri veya herhangi bir ilgili dokümanı saniyeler
+                            içinde yükleyin</p>
+                        <div class="small text-muted mt-2">
+                            <i class="fas fa-check-circle me-1 text-success"></i> PDF, DOC, DOCX, TXT desteklenir<br>
+                            <i class="fas fa-check-circle me-1 text-success"></i> Görsel ve tablolar da analiz
+                            edilir<br>
+                            <i class="fas fa-check-circle me-1 text-success"></i> 100+ sayfalık dokümanları işleyebilir
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h5 class="mt-4">Yapay Zeka Analizi</h5>
+                        <p>Doctest yapay zeka modelimiz, dokümanı analiz ederek anahtar işlevleri ve gereksinimleri
+                            otomatik belirler</p>
+                        <div class="small text-muted mt-2">
+                            <i class="fas fa-check-circle me-1 text-success"></i> GPT-4o, Ollama ve DeepSeek
+                            desteklenir<br>
+                            <i class="fas fa-check-circle me-1 text-success"></i> Akıllı belge işleme ve
+                            optimizasyon<br>
+                            <i class="fas fa-check-circle me-1 text-success"></i> Çoklu model yaklaşımı ile %98 doğruluk
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="feature-icon">
+                            <i class="fas fa-clipboard-list"></i>
+                        </div>
+                        <h5 class="mt-4">Test Senaryoları Alın</h5>
+                        <p>Kapsamlı ve yapılandırılmış test senaryoları otomatik olarak oluşturulur ve hemen kullanıma
+                            hazır hale gelir</p>
+                        <div class="small text-muted mt-2">
+                            <i class="fas fa-check-circle me-1 text-success"></i> Selenium ve Cypress ile
+                            entegrasyon<br>
+                            <i class="fas fa-check-circle me-1 text-success"></i> Düzenlenebilir ve özelleştirilebilir
+                            sonuçlar<br>
+                            <i class="fas fa-check-circle me-1 text-success"></i> JSON, CSV formatlarında dışa aktarım
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Yeni: Demo Video ve Yönlendirme -->
+                <div class="row mt-5">
+                    <div class="col-md-10 mx-auto">
+                        <div class="card bg-dark bg-opacity-50 border-0">
+                            <div class="card-body text-center p-4">
+                                <h5 class="mb-3"><i class="fas fa-film me-2 text-primary"></i> Nasıl Çalıştığını Görmek
+                                    İster misiniz?</h5>
+                                <p>Platformumuzun tüm özelliklerini gösteren tanıtım videosunu izleyin veya hemen
+                                    başlamak için bir doküman yükleyin.</p>
+                                <div class="d-flex justify-content-center gap-3 mt-4">
+                                    <button class="btn btn-outline-primary">
+                                        <i class="fas fa-play-circle me-2"></i> Demo İzle
+                                    </button>
+                                    <a href="#upload-section" class="btn btn-primary">
+                                        <i class="fas fa-rocket me-2"></i> Hemen Başla
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doctest Ultra Modern Technologies Section -->
+        <div class="api-tech-section-3d mt-5 position-relative">
+            <div class="tech-section-background"></div>
+            <div class="tech-section-content text-center py-5">
+                <div class="mb-4">
+                    <h4 class="text-light">Doctest Teknoloji Çözümleri</h4>
+                    <div class="gold-divider-sm mx-auto"></div>
+                    <p class="text-light mt-3">Türkiye'nin lider teknoloji şirketi olarak, yenilikçi çözümlerimizle
+                        geleceği bugüne taşıyoruz</p>
+                </div>
+
+                <div class="tech-cards-container">
+                    <div class="tech-card">
+                        <div class="tech-card-inner">
+                            <div class="tech-card-front">
+                                <i class="fas fa-microchip fa-3x mb-3"></i>
+                                <h5>Yapay Zeka</h5>
+                            </div>
+                            <div class="tech-card-back">
+                                <p>Akıllı sistemler ve yenilikçi modeller geliştiriyoruz</p>
+                                <a href="#" class="btn btn-sm btn-outline-light mt-2">Keşfet</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tech-card">
+                        <div class="tech-card-inner">
+                            <div class="tech-card-front">
+                                <i class="fas fa-cloud fa-3x mb-3"></i>
+                                <h5>Bulut Teknolojileri</h5>
+                            </div>
+                            <div class="tech-card-back">
+                                <p>Ölçeklenebilir ve güvenli bulut çözümleri sağlıyoruz</p>
+                                <a href="#" class="btn btn-sm btn-outline-light mt-2">Keşfet</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tech-card">
+                        <div class="tech-card-inner">
+                            <div class="tech-card-front">
+                                <i class="fas fa-shield-alt fa-3x mb-3"></i>
+                                <h5>Siber Güvenlik</h5>
+                            </div>
+                            <div class="tech-card-back">
+                                <p>İşletmeleri dijital tehditlerden koruyoruz</p>
+                                <a href="#" class="btn btn-sm btn-outline-light mt-2">Keşfet</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tech-card">
+                        <div class="tech-card-inner">
+                            <div class="tech-card-front">
+                                <i class="fas fa-network-wired fa-3x mb-3"></i>
+                                <h5>Telekomünikasyon</h5>
+                            </div>
+                            <div class="tech-card-back">
+                                <p>Kesintisiz iletişim altyapısı kuruyoruz</p>
+                                <a href="#" class="btn btn-sm btn-outline-light mt-2">Keşfet</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tech-card">
+                        <div class="tech-card-inner">
+                            <div class="tech-card-front">
+                                <i class="fas fa-code fa-3x mb-3"></i>
+                                <h5>Yazılım Çözümleri</h5>
+                            </div>
+                            <div class="tech-card-back">
+                                <p>İhtiyaçlarınıza özel yazılımlar geliştiriyoruz</p>
+                                <a href="#" class="btn btn-sm btn-outline-light mt-2">Keşfet</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Entegrasyon Bölümü: Popüler Test Otomasyon Araçları -->
+        <div class="card luxury-card mt-5 mb-4">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    <i class="fas fa-plug me-2"></i>
+                    Popüler Test Otomasyonu Araçları
+                </h4>
+            </div>
+            <div class="card-body">
+                <p class="lead">
+                    Aşağıdaki popüler test otomasyon araçlarıyla entegrasyon seçenekleri. İlgilendiğiniz aracı incelemek
+                    için tıklayın.
+                </p>
+
+                <div class="row mt-4 integration-buttons">
+                    <div class="col-md-4 mb-3">
+                        <button class="btn btn-outline-primary w-100 integration-btn" data-target="selenium">
+                            <i class="fas fa-check-circle me-2"></i> Selenium
+                        </button>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <button class="btn btn-outline-primary w-100 integration-btn" data-target="cypress">
+                            <i class="fas fa-vial me-2"></i> Cypress
+                        </button>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <button class="btn btn-outline-primary w-100 integration-btn" data-target="playwright">
+                            <i class="fas fa-theater-masks me-2"></i> Playwright
+                        </button>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <button class="btn btn-outline-primary w-100 integration-btn" data-target="cucumber">
+                            <i class="fas fa-leaf me-2"></i> Cucumber
+                        </button>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <button class="btn btn-outline-primary w-100 integration-btn" data-target="appium">
+                            <i class="fas fa-mobile-alt me-2"></i> Appium
+                        </button>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <button class="btn btn-outline-primary w-100 integration-btn" data-target="all">
+                            <i class="fas fa-layer-group me-2"></i> Tüm Araçlar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Test Otomasyon Aracı Modals -->
+<!-- Selenium Modal -->
+<div class="modal fade" id="seleniumModal" tabindex="-1" aria-labelledby="seleniumModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="seleniumModalLabel">
+                    <i class="fas fa-check-circle me-2"></i> Selenium Entegrasyonu
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-check-circle fa-4x mb-3 text-primary"></i>
+                            <h4>Selenium</h4>
+                            <p class="text-muted">Web otomasyonu için güçlü ve esnek çözüm</p>
+                        </div>
+                        <div class="d-grid gap-2 mt-4">
+                            <a href="https://www.selenium.dev/documentation/" class="btn btn-outline-primary"
+                                target="_blank">
+                                <i class="fas fa-book me-2"></i> Dökümanlar
+                            </a>
+                            <a href="https://www.selenium.dev/downloads/" class="btn btn-outline-primary"
+                                target="_blank">
+                                <i class="fas fa-download me-2"></i> İndir
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h5>Test Kodu Örneği</h5>
+                        <pre class="bg-dark p-3 rounded"><code id="seleniumCodeOutput" class="text-light">from selenium import webdriver
+from selenium.webdriver.common.by import By
+import unittest
+
+class TestScenario(unittest.TestCase):
+    
+    def setUp(self):
+        self.driver = webdriver.Chrome()
+        self.driver.get("https://example.com")
+    
+    def test_example(self):
+        # Test steps will go here
+        pass
+        
+    def tearDown(self):
+        self.driver.quit()
+</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cypress Modal -->
+<div class="modal fade" id="cypressModal" tabindex="-1" aria-labelledby="cypressModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cypressModalLabel">
+                    <i class="fas fa-vial me-2"></i> Cypress Entegrasyonu
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-vial fa-4x mb-3 text-primary"></i>
+                            <h4>Cypress</h4>
+                            <p class="text-muted">Modern web için JavaScript tabanlı test aracı</p>
+                        </div>
+                        <div class="d-grid gap-2 mt-4">
+                            <a href="https://docs.cypress.io" class="btn btn-outline-primary" target="_blank">
+                                <i class="fas fa-book me-2"></i> Dökümanlar
+                            </a>
+                            <a href="https://www.cypress.io" class="btn btn-outline-primary" target="_blank">
+                                <i class="fas fa-download me-2"></i> İndir
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h5>Test Kodu Örneği</h5>
+                        <pre class="bg-dark p-3 rounded"><code id="cypressCodeOutput" class="text-light">describe('Test Scenario', () => {
+  beforeEach(() => {
+    cy.visit('https://example.com')
+  })
+  
+  it('should perform the test scenario', () => {
+    // Test steps will go here
+    cy.get('#element').click()
+    cy.contains('Success').should('be.visible')
+  })
+})</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Playwright Modal -->
+<div class="modal fade" id="playwrightModal" tabindex="-1" aria-labelledby="playwrightModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="playwrightModalLabel">
+                    <i class="fas fa-theater-masks me-2"></i> Playwright Entegrasyonu
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center">
+                            <i class="fas fa-theater-masks fa-4x mb-3 text-primary"></i>
+                            <h4>Playwright</h4>
+                            <p class="text-muted">Microsoft'un modern web testleri için geliştirdiği araç</p>
+                        </div>
+                        <div class="d-grid gap-2 mt-4">
+                            <a href="https://playwright.dev/docs/intro" class="btn btn-outline-primary" target="_blank">
+                                <i class="fas fa-book me-2"></i> Dökümanlar
+                            </a>
+                            <a href="https://playwright.dev" class="btn btn-outline-primary" target="_blank">
+                                <i class="fas fa-download me-2"></i> İndir
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-8">
+                        <h5>Test Kodu Örneği</h5>
+                        <pre class="bg-dark p-3 rounded"><code id="playwrightCodeOutput" class="text-light">const { test, expect } = require('@playwright/test');
+
+test('test scenario', async ({ page }) => {
+  await page.goto('https://example.com');
+  
+  // Test steps
+  await page.click('#element');
+  await expect(page.locator('.success')).toBeVisible();
+});</code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Appium Modal -->
+<div class="modal fade" id="appiumModal" tabindex="-1" aria-labelledby="appiumModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="appiumModalLabel">
+                    <i class="fas fa-mobile-alt me-2"></i> Appium Entegrasyonu
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-mobile-alt fa-4x mb-3 text-primary"></i>
+                    <h4>Appium</h4>
+                    <p class="text-muted">Mobil uygulama testleri için açık kaynak otomasyon aracı</p>
+                </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Mobil otomasyon entegrasyonu yakında eklenecektir. Mobil test senaryoları şu anda genel amaçlı
+                    senaryo olarak oluşturulabilir.
+                </div>
+                <div class="d-grid gap-2 col-md-6 mx-auto mt-4">
+                    <a href="https://appium.io/docs/en/2.0/" class="btn btn-outline-primary" target="_blank">
+                        <i class="fas fa-book me-2"></i> Appium Dökümanları
+                    </a>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cucumber Modal -->
+<div class="modal fade" id="cucumberModal" tabindex="-1" aria-labelledby="cucumberModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cucumberModalLabel">
+                    <i class="fas fa-leaf me-2"></i> Cucumber Entegrasyonu
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-leaf fa-4x mb-3 text-primary"></i>
+                    <h4>Cucumber</h4>
+                    <p class="text-muted">BDD (Davranış Odaklı Geliştirme) test aracı</p>
+                </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    BDD entegrasyonu yakında eklenecektir. Test senaryoları şu anda doğrudan diğer otomasyon araçlarına
+                    aktarılabilir.
+                </div>
+                <div class="d-grid gap-2 col-md-6 mx-auto mt-4">
+                    <a href="https://cucumber.io/docs/guides/" class="btn btn-outline-primary" target="_blank">
+                        <i class="fas fa-book me-2"></i> Cucumber Dökümanları
+                    </a>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- All Integrations Modal -->
+<div class="modal fade" id="allIntegrationsModal" tabindex="-1" aria-labelledby="allIntegrationsModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="allIntegrationsModalLabel">
+                    <i class="fas fa-layer-group me-2"></i> Tüm Test Otomasyon Araçları
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5><i class="fas fa-check-circle me-2 text-primary"></i> Selenium</h5>
+                                <p class="small">Web otomasyonu için güçlü ve esnek çözüm</p>
+                                <a href="#" class="btn btn-sm btn-outline-primary integration-btn"
+                                    data-bs-dismiss="modal" data-target="selenium">
+                                    Detaylar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5><i class="fas fa-vial me-2 text-primary"></i> Cypress</h5>
+                                <p class="small">Modern web için JavaScript tabanlı test aracı</p>
+                                <a href="#" class="btn btn-sm btn-outline-primary integration-btn"
+                                    data-bs-dismiss="modal" data-target="cypress">
+                                    Detaylar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5><i class="fas fa-theater-masks me-2 text-primary"></i> Playwright</h5>
+                                <p class="small">Microsoft'un modern web testleri için geliştirdiği araç</p>
+                                <a href="#" class="btn btn-sm btn-outline-primary integration-btn"
+                                    data-bs-dismiss="modal" data-target="playwright">
+                                    Detaylar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5><i class="fas fa-leaf me-2 text-primary"></i> Cucumber</h5>
+                                <p class="small">BDD (Davranış Odaklı Geliştirme) test aracı</p>
+                                <a href="#" class="btn btn-sm btn-outline-primary integration-btn"
+                                    data-bs-dismiss="modal" data-target="cucumber">
+                                    Detaylar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5><i class="fas fa-mobile-alt me-2 text-primary"></i> Appium</h5>
+                                <p class="small">Mobil uygulama testleri için açık kaynak otomasyon aracı</p>
+                                <a href="#" class="btn btn-sm btn-outline-primary integration-btn"
+                                    data-bs-dismiss="modal" data-target="appium">
+                                    Detaylar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5><i class="fas fa-robot me-2 text-primary"></i> Robot Framework</h5>
+                                <p class="small">Kabul testleri için popüler açık kaynaklı çerçeve</p>
+                                <div class="badge bg-secondary">Yakında</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="alert alert-primary mt-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Test otomasyonu seçeneklerine ilişkin entegrasyonlar düzenli olarak güncellenecektir. Daha fazla
+                    bilgi için Doctest ile iletişime geçebilirsiniz.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+<!-- Load Azure integration script -->
+<script src="{{ url_for('static', filename='js/azure-integration.js') }}"></script>

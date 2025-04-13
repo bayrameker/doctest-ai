@@ -1,0 +1,100 @@
+<div class="mb-4">
+    <div class="d-flex align-items-center mb-2">
+        <i class="fas fa-robot text-primary me-2"></i>
+        <h5 class="mb-0">NeuraAgent Basic</h5>
+        <div class="ms-auto">
+            <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" id="toggleAgent" {% if agent_enabled %}checked{% endif %} {% if not neuraagent_available %}disabled{% endif %}>
+            </div>
+        </div>
+    </div>
+    
+    {% if agent_enabled and neuraagent_available %}
+        <div class="agent-status bg-success-subtle p-2 rounded mb-2 d-flex align-items-center">
+            <i class="fas fa-check-circle text-success me-2"></i>
+            <small>Etkin</small>
+        </div>
+        <div class="small text-muted mb-3">
+            NeuraAgent akıllı doküman analizi ve işleme servisi şu anda aktif.
+        </div>
+    {% else %}
+        <div class="agent-status bg-secondary-subtle p-2 rounded mb-2 d-flex align-items-center">
+            <i class="fas fa-power-off text-secondary me-2"></i>
+            <small>{% if not neuraagent_available %}Mevcut Değil{% else %}Devre Dışı{% endif %}</small>
+        </div>
+        <div class="small text-muted mb-3">
+            {% if not neuraagent_available %}
+                NeuraAgent bileşeni bu sistemde mevcut değil.
+            {% else %}
+                NeuraAgent şu anda kapalı. Açmak için düğmeyi kaydırın.
+            {% endif %}
+        </div>
+    {% endif %}
+    
+    {% if agent_enabled and neuraagent_available %}
+        <hr class="my-3">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small fw-bold">Doküman Hafızası</span>
+            <span class="badge bg-primary">{{ db_stats.document_count|default(0) }}</span>
+        </div>
+        <div class="progress mb-3" style="height: 8px;">
+            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ (db_stats.document_count|default(0) / 50) * 100 }}%"></div>
+        </div>
+        
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small fw-bold">İşlenen Bölümler</span>
+            <span class="badge bg-success">{{ db_stats.section_count|default(0) }}</span>
+        </div>
+        <div class="progress mb-3" style="height: 8px;">
+            <div class="progress-bar bg-success" role="progressbar" style="width: {{ (db_stats.section_count|default(0) / 200) * 100 }}%"></div>
+        </div>
+        
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small fw-bold">Kavram Analizi</span>
+            <span class="badge bg-info">{{ db_stats.concept_count|default(0) }}</span>
+        </div>
+        <div class="progress mb-3" style="height: 8px;">
+            <div class="progress-bar bg-info" role="progressbar" style="width: {{ (db_stats.concept_count|default(0) / 100) * 100 }}%"></div>
+        </div>
+        
+        <a href="{{ url_for('agent_settings') }}" class="btn btn-outline-primary btn-sm w-100 mt-2">
+            <i class="fas fa-cog me-1"></i> Ajan Ayarları
+        </a>
+    {% elif neuraagent_available %}
+        <a href="{{ url_for('agent_settings') }}" class="btn btn-outline-secondary btn-sm w-100 mt-2">
+            <i class="fas fa-cog me-1"></i> Ajan Ayarları
+        </a>
+    {% endif %}
+</div>
+
+<script>
+    document.getElementById('toggleAgent').addEventListener('change', function() {
+        // AJAX ile agent durumunu güncelle
+        fetch('/toggle_agent', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                enabled: this.checked
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Sayfa yenileme için basit çözüm
+                location.reload();
+            } else {
+                alert('Ajan durumu güncellenirken bir hata oluştu: ' + data.message);
+                // Checkbox'ı eski durumuna getir
+                this.checked = !this.checked;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ajan durumu güncellenirken bir hata oluştu.');
+            // Checkbox'ı eski durumuna getir
+            this.checked = !this.checked;
+        });
+    });
+</script>

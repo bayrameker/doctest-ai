@@ -1,0 +1,214 @@
+/* ================================
+   BASE STYLES AND VARIABLES
+   ================================ */
+
+/* Define Doctest Color Palette - Modern & Impactful */
+:root {
+    --api-primary: #0a2342;
+    /* Modern deep blue */
+    --api-secondary: #126e82;
+    /* Teal accent */
+    --api-accent: #ff3e5f;
+    /* Vibrant magenta */
+    --api-gold: #f2b705;
+    /* Sunflower gold */
+    --api-light: #f4f9fc;
+    /* Light background */
+    --api-dark: #0c1e35;
+    /* Dark background */
+    --api-silver: #e0e0e2;
+    /* Clean silver */
+    --api-dark: #12151e;
+    /* Richer dark background */
+    --api-light: #f7f9fc;
+    /* Crisp white */
+    --api-grey: #3f4756;
+    /* Neutral grey */
+    --api-success: #16db93;
+    /* Modern green */
+    --api-warning: #ffbf46;
+    /* Warm orange */
+    --api-danger: #fa5246;
+    /* Bold red */
+}
+
+/* Font family settings - Modern & Clean */
+body,
+.btn,
+.navbar-nav,
+.form-control,
+.form-label {
+    font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.navbar-brand,
+.card-header {
+    font-family: 'Outfit', 'SF Pro Display', system-ui, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+/* Gold dividers for section separation */
+.gold-divider {
+    width: 150px;
+    height: 3px;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            var(--api-gold) 20%,
+            var(--api-gold) 80%,
+            transparent 100%);
+}
+
+.gold-divider-sm {
+    width: 100px;
+    height: 2px;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            var(--api-gold) 20%,
+            var(--api-gold) 80%,
+            transparent 100%);
+}
+
+/* Header decorator with gold strip */
+.header-decorator {
+    position: relative;
+    width: 100%;
+    height: 4px;
+    background: var(--api-dark);
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.gold-strip {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg,
+            transparent 0%,
+            var(--api-gold) 20%,
+            var(--api-gold) 80%,
+            transparent 100%);
+    animation: shimmer 3s infinite linear;
+}
+
+/* General Styles with Modern Touches */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--api-dark);
+    background-image: linear-gradient(135deg,
+            rgba(18, 21, 30, 0.97) 0%,
+            rgba(10, 35, 66, 0.95) 100%);
+    background-attachment: fixed;
+    color: var(--api-light);
+    line-height: 1.6;
+}
+
+.container {
+    flex: 1 0 auto;
+}
+
+/* Elegant header with gradient */
+.navbar {
+    background: linear-gradient(90deg, var(--api-dark) 0%, var(--api-primary) 100%) !important;
+    border-bottom: 1px solid var(--api-gold);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    padding: 0.8rem 1rem;
+}
+
+.navbar-brand {
+    font-weight: 600;
+    color: white !important;
+    text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+    font-size: 1.4rem;
+    letter-spacing: 0.5px;
+}
+
+.navbar-brand .api-logo {
+    font-family: 'Arial Black', sans-serif;
+    color: white;
+    font-weight: 900;
+    margin-right: 5px;
+}
+
+.navbar-brand .api-accent {
+    color: var(--api-accent);
+}
+
+.nav-link {
+    color: var(--api-silver) !important;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.nav-link:hover {
+    color: var(--api-accent) !important;
+    transform: translateY(-2px);
+}
+
+/* Enhanced Feature Icons */
+.feature-icon {
+    display: flex;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--api-primary) 0%, var(--api-secondary) 100%);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3), inset 0 0 20px rgba(255, 255, 255, 0.2);
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    color: white;
+    font-size: 2rem;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.feature-icon:after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px solid var(--api-gold);
+    opacity: 0.7;
+    animation: pulse 2s infinite;
+}
+
+/* Enhanced feature icons with glow */
+.features-row .feature-icon {
+    margin: 0 auto;
+    background: linear-gradient(135deg,
+            var(--api-primary) 20%,
+            var(--api-secondary) 80%);
+    font-size: 2.2rem;
+    position: relative;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .navbar-nav {
+        background-color: var(--api-primary);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 0.5rem;
+    }
+
+    .hero-title {
+        font-size: 2.5rem;
+    }
+
+    .hero-subtitle {
+        font-size: 1.1rem;
+    }
+}
